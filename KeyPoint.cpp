@@ -55,7 +55,7 @@ std::vector<std::string> KeyPoint::splitInputLine(std::string &line) {
     return lineTokens;
 }
 
-vector<KeyPoint *> KeyPoint::importKeyPoints(string &fileName) {
+vector<KeyPoint *> KeyPoint::importKeyPoints(const string &fileName) {
     string line;
     std::ifstream file;
     vector<KeyPoint*> keyPoints;
@@ -112,4 +112,12 @@ void KeyPoint::calculateNeighbourhood(vector<KeyPoint *> &allImageKeyPoints, int
 
 bool KeyPoint::neighbourhoodContains(KeyPoint *otherKeyPoint) {
     return std::find(this->neighbourhood.begin(), this->neighbourhood.end(), otherKeyPoint) != this->neighbourhood.end();
+}
+
+double KeyPoint::getX() const {
+    return x;
+}
+
+double KeyPoint::getY() const {
+    return y;
 }

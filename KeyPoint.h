@@ -29,8 +29,12 @@ public:
     void calculateNeighbourhood(vector<KeyPoint*>& allImageKeyPoints, int neighbourhoodSize);
     bool neighbourhoodContains(KeyPoint* otherKeyPoint);
 
+    double getX() const;
+
+    double getY() const;
+
     static KeyPoint* fromString(string& text);
-    static vector<KeyPoint*> importKeyPoints(string& fileName);
+    static vector<KeyPoint*> importKeyPoints(const string& fileName);
     static vector<pair<KeyPoint*, KeyPoint*>> getKeyPointPairs(vector<KeyPoint*>& firstKeyPoints, vector<KeyPoint*>& secondKeyPoints);
 private:
     double x;
