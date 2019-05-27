@@ -34,6 +34,15 @@ ImageAnalyzer::ImageAnalyzer(int neighbourhoodSize, double cohesionThreshold, st
                                                         neighbourhoodSize(neighbourhoodSize),
                                                         cohesionThreshold(cohesionThreshold) {}
 
+ImageAnalyzer::~ImageAnalyzer() {
+    for(KeyPoint* keyPoint : firstImageKeyPoints){
+        delete keyPoint;
+    }
+    for(KeyPoint* keyPoint : secondImageKeyPoints){
+        delete keyPoint;
+    }
+}
+
 void ImageAnalyzer::analyze() {
     if(!initialized){
         init();
@@ -41,7 +50,7 @@ void ImageAnalyzer::analyze() {
     calculatePairs();
     calculateNeighbourhoods();
     analyzeNeigbourhoodCohesion();
-    runRansacAffine();
+    runRansac();
 }
 
 void ImageAnalyzer::calculatePairs() {
@@ -97,6 +106,7 @@ void ImageAnalyzer::init() {
 void ImageAnalyzer::runDemonstration() {
     showAllPairs();
     showCoherentPairs();
+    showPairsMatchingTransform();
 }
 
 void ImageAnalyzer::showCoherentPairs() {
@@ -105,6 +115,10 @@ void ImageAnalyzer::showCoherentPairs() {
 
 void ImageAnalyzer::showAllPairs() {
     showPairs(keyPointPairs, "All key point pairs");
+}
+
+void ImageAnalyzer::showPairsMatchingTransform() {
+    showPairs(matchingTransformKeyPointPairs, "Matching transform key point pairs");
 }
 
 void ImageAnalyzer::showPairs(vector<pair<KeyPoint *, KeyPoint *>> &pairs, const string& windowName, bool hstack) {
@@ -130,41 +144,6 @@ void ImageAnalyzer::showPairs(vector<pair<KeyPoint *, KeyPoint *>> &pairs, const
     cv::waitKey(0);
 }
 
-ImageAnalyzer::~ImageAnalyzer() {
-    for(KeyPoint* keyPoint : firstImageKeyPoints){
-        delete keyPoint;
-    }
-    for(KeyPoint* keyPoint : secondImageKeyPoints){
-        delete keyPoint;
-    }
-}
-
-Eigen::Matrix3d ImageAnalyzer::runRansacAffine() {
-    Eigen::Matrix3d bestTransformation;
-    int bestScore = 0;
-    for(int i = 0; i < ransacIterations; i++){
-        Eigen::MatrixXd A = nextRandomAffineTransform();
-        int score = 0;
-        for(auto& pair : coherentKeyPointPairs){
-            Eigen::Vector3d point;
-            point << pair.first->getX(),
-                     pair.first->getY(),
-                     1;
-            Eigen::Vector3d transformedPoint = A * point;
-            double distance = pair.second->euclideanDistance(transformedPoint(0), transformedPoint(1));
-            if(distance < transformationErrorThreshold){
-                score++;
-            }
-        }
-        if(score > bestScore){
-            bestScore = score;
-            bestTransformation = A;
-            std::cout << "current score: " << bestScore << "best possible: " << coherentKeyPointPairs.size();
-        }
-    }
-    return bestTransformation;
-}
-
 vector<pair<KeyPoint*, KeyPoint*>> ImageAnalyzer::getNDifferentCoherentKeyPointPairs(int n) {
     unordered_set<int> indices;
     std::uniform_int_distribution<int> distribution(0, coherentKeyPointPairs.size() -1);
@@ -177,6 +156,40 @@ vector<pair<KeyPoint*, KeyPoint*>> ImageAnalyzer::getNDifferentCoherentKeyPointP
         result.push_back(coherentKeyPointPairs[index]);
     }
     return result;
+}
+
+void ImageAnalyzer::runRansac() {
+    runRansacAffine();
+}
+
+void ImageAnalyzer::runRansacAffine() {
+    Eigen::Matrix3d bestTransformation;
+    vector<pair<KeyPoint*, KeyPoint*>> bestConsensus;
+    int bestScore = 0;
+    for(int i = 0; i < ransacIterations; i++){
+        Eigen::MatrixXd A = nextRandomAffineTransform();
+        vector<pair<KeyPoint*, KeyPoint*>> consensus;
+        consensus.reserve(coherentKeyPointPairs.size());
+        for(auto& pair : coherentKeyPointPairs){
+            Eigen::Vector3d point;
+            point << pair.first->getX(),
+                    pair.first->getY(),
+                    1;
+            Eigen::Vector3d transformedPoint = A * point;
+            double distance = pair.second->euclideanDistance(transformedPoint(0), transformedPoint(1));
+            if(distance < transformationErrorThreshold){
+                consensus.push_back(pair);
+            }
+        }
+        if(consensus.size() > bestScore){
+            bestScore = consensus.size();
+            bestTransformation = A;
+            bestConsensus = consensus;
+            std::cout << "current score: " << bestScore << "best possible: " << coherentKeyPointPairs.size();
+        }
+    }
+    this->bestFoundTransformation = bestTransformation;
+    this->matchingTransformKeyPointPairs = bestConsensus;
 }
 
 Eigen::MatrixXd ImageAnalyzer::nextRandomAffineTransform() {
@@ -196,15 +209,15 @@ Eigen::MatrixXd ImageAnalyzer::nextRandomAffineTransform() {
             0, 0, 0, thirdPointA->getX(), thirdPointA->getY(), 1;
     Eigen::VectorXd Y(6);
     Y << firstPointB->getX(),
-         secondPointB->getX(),
-         thirdPointB->getX(),
-         firstPointB->getY(),
-         secondPointB->getY(),
-         thirdPointB->getY();
+            secondPointB->getX(),
+            thirdPointB->getX(),
+            firstPointB->getY(),
+            secondPointB->getY(),
+            thirdPointB->getY();
     Eigen::VectorXd vec = X.inverse() * Y;
     Eigen::MatrixXd result(3,3);
     result << vec(0), vec(1), vec(2),
-              vec(3), vec(4), vec(5),
-              0, 0, 1;
+            vec(3), vec(4), vec(5),
+            0, 0, 1;
     return result;
 }

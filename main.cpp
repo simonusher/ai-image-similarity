@@ -6,7 +6,7 @@ using namespace std;
 int main() {
     string firstFileName("1.png");
     string secondFileName("2.png");
-    ImageAnalyzer imageAnalyzer(100, 0.8, 100, 4, firstFileName, secondFileName);
+    ImageAnalyzer imageAnalyzer(100, 0.6, 1000, 1, firstFileName, secondFileName);
     imageAnalyzer.analyze();
     imageAnalyzer.runDemonstration();
     return 0;

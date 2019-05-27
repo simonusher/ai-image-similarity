@@ -39,35 +39,40 @@ public:
 
     static const string FEATURE_DATA_FILE_SUFFIX;
 
-    vector<pair<KeyPoint*, KeyPoint*>> coherentKeyPointPairs;
 private:
-    Eigen::Matrix3d runRansacAffine();
+    void runRansacAffine();
     void showAllPairs();
     void showCoherentPairs();
     void showPairs(vector<pair<KeyPoint *, KeyPoint *>>& pairs, const string& windowName, bool hstack = true);
+    void showPairsMatchingTransform();
     void calculatePairs();
     void calculateNeighbourhoods();
     void analyzeNeigbourhoodCohesion();
     Eigen::MatrixXd nextRandomAffineTransform();
-    vector<pair<KeyPoint*, KeyPoint*>> getNDifferentCoherentKeyPointPairs(int n);
 
+    vector<pair<KeyPoint*, KeyPoint*>> getNDifferentCoherentKeyPointPairs(int n);
     bool initialized;
     int ransacIterations;
     double transformationErrorThreshold;
     string firstImagePath;
     string secondImagePath;
     vector<KeyPoint*> firstImageKeyPoints;
-
     vector<KeyPoint*> secondImageKeyPoints;
-    vector<KeyPoint*> firstImagePairedKeyPoints;
 
+    vector<KeyPoint*> firstImagePairedKeyPoints;
     vector<KeyPoint*> secondImagePairedKeyPoints;
+
     vector<pair<KeyPoint*, KeyPoint*>> keyPointPairs;
+    vector<pair<KeyPoint*, KeyPoint*>> coherentKeyPointPairs;
+    vector<pair<KeyPoint*, KeyPoint*>> matchingTransformKeyPointPairs;
+    Eigen::Matrix3d bestFoundTransformation;
 
     std::default_random_engine randomEngine;
-
     int neighbourhoodSize;
+
     double cohesionThreshold;
+
+    void runRansac();
 };
 
 
