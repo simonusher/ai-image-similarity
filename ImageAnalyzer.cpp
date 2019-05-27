@@ -221,3 +221,40 @@ Eigen::MatrixXd ImageAnalyzer::nextRandomAffineTransform() {
             0, 0, 1;
     return result;
 }
+
+Eigen::MatrixXd ImageAnalyzer::nextRandomPerspectiveTransform() {
+    vector<pair<KeyPoint*, KeyPoint*>> randomKeyPoints = getNDifferentCoherentKeyPointPairs(4);
+    KeyPoint *A1 = randomKeyPoints[0].first;
+    KeyPoint *A2 = randomKeyPoints[1].first;
+    KeyPoint *A3 = randomKeyPoints[2].first;
+    KeyPoint *A4 = randomKeyPoints[3].first;
+    KeyPoint *B1 = randomKeyPoints[0].second;
+    KeyPoint *B2 = randomKeyPoints[1].second;
+    KeyPoint *B3 = randomKeyPoints[2].second;
+    KeyPoint *B4 = randomKeyPoints[3].second;
+    Eigen::MatrixXd X(8,8);
+    X << A1->getX(), A1->getY(), 1, 0, 0, 0, (-B1->getX() * A1->getX()), (-B1->getX() * A1->getY()),
+         A2->getX(), A2->getY(), 1, 0, 0, 0, (-B2->getX() * A2->getX()), (-B2->getX() * A2->getY()),
+         A3->getX(), A3->getY(), 1, 0, 0, 0, (-B3->getX() * A3->getX()), (-B3->getX() * A3->getY()),
+         A4->getX(), A4->getY(), 1, 0, 0, 0, (-B4->getX() * A4->getX()), (-B4->getX() * A4->getY()),
+         0, 0, 0, A1->getX(), A1->getY(), 1, (-B1->getY() * A1->getX()), (-B1->getY() * A1->getY()),
+         0, 0, 0, A2->getX(), A2->getY(), 1, (-B2->getY() * A2->getX()), (-B2->getY() * A2->getY()),
+         0, 0, 0, A3->getX(), A3->getY(), 1, (-B3->getY() * A3->getX()), (-B3->getY() * A3->getY()),
+         0, 0, 0, A4->getX(), A4->getY(), 1, (-B4->getY() * A4->getX()), (-B4->getY() * A4->getY());
+
+    Eigen::VectorXd Y(8);
+    Y << B1->getX(),
+            B2->getX(),
+            B3->getX(),
+            B4->getX(),
+            B1->getY(),
+            B2->getY(),
+            B3->getY();
+            B4->getY();
+    Eigen::VectorXd vec = X.inverse() * Y;
+    Eigen::MatrixXd result(3,3);
+    result << vec(0), vec(1), vec(2),
+            vec(3), vec(4), vec(5),
+            vec(6), vec(7), 1;
+    return result;
+}

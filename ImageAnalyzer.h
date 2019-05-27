@@ -49,6 +49,7 @@ private:
     void calculateNeighbourhoods();
     void analyzeNeigbourhoodCohesion();
     Eigen::MatrixXd nextRandomAffineTransform();
+    Eigen::MatrixXd nextRandomPerspectiveTransform();
 
     vector<pair<KeyPoint*, KeyPoint*>> getNDifferentCoherentKeyPointPairs(int n);
     bool initialized;
@@ -65,7 +66,7 @@ private:
     vector<pair<KeyPoint*, KeyPoint*>> keyPointPairs;
     vector<pair<KeyPoint*, KeyPoint*>> coherentKeyPointPairs;
     vector<pair<KeyPoint*, KeyPoint*>> matchingTransformKeyPointPairs;
-    Eigen::Matrix3d bestFoundTransformation;
+    Eigen::MatrixXd bestFoundTransformation;
 
     std::default_random_engine randomEngine;
     int neighbourhoodSize;
