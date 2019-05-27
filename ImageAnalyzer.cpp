@@ -134,10 +134,12 @@ void ImageAnalyzer::showPairs(vector<pair<KeyPoint *, KeyPoint *>> &pairs, const
         cv::vconcat(im1, im2, imstack);
         vOffset = im1.rows;
     }
+    std::uniform_int_distribution<int> colorDistribution(0, 255);
     for(auto& keyPointPair : pairs) {
         cv::Point firstPoint(keyPointPair.first->getX(), keyPointPair.first->getY());
         cv::Point secondPoint(keyPointPair.second->getX() + hOffset, keyPointPair.second->getY() + vOffset);
-        cv::line(imstack, firstPoint, secondPoint, cv::Scalar(0, 0, 255));
+        cv::line(imstack, firstPoint, secondPoint,
+                cv::Scalar(colorDistribution(randomEngine), colorDistribution(randomEngine), colorDistribution(randomEngine)));
     }
     namedWindow(windowName, cv::WINDOW_AUTOSIZE );
     imshow(windowName, imstack);
@@ -167,7 +169,8 @@ void ImageAnalyzer::runRansacAffine() {
     vector<pair<KeyPoint*, KeyPoint*>> bestConsensus;
     int bestScore = 0;
     for(int i = 0; i < ransacIterations; i++){
-        Eigen::MatrixXd A = nextRandomAffineTransform();
+//        Eigen::MatrixXd A = nextRandomAffineTransform();
+        Eigen::MatrixXd A = nextRandomPerspectiveTransform();
         vector<pair<KeyPoint*, KeyPoint*>> consensus;
         consensus.reserve(coherentKeyPointPairs.size());
         for(auto& pair : coherentKeyPointPairs){
