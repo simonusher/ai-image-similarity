@@ -23,7 +23,9 @@ class KeyPoint {
 public:
     KeyPoint(double x, double y, vector<double> features);
     double featureDistance(KeyPoint& other);
+    double squaredEuclideanDistance(double otherX, double otherY);
     double euclideanDistance(KeyPoint& other);
+    double euclideanDistance(double otherX, double otherY);
     double squaredEuclideanDistance(KeyPoint &other);
     KeyPoint* getClosest(vector<KeyPoint*>& keyPoints);
     void calculateNeighbourhood(vector<KeyPoint*>& allImageKeyPoints, int neighbourhoodSize);

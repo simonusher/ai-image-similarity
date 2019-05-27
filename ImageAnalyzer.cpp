@@ -1,6 +1,3 @@
-#include <utility>
-
-#include <utility>
 
 //
 // Created by Szymon on 27.05.2019.
@@ -20,6 +17,23 @@ ImageAnalyzer::ImageAnalyzer(int neighbourhoodSize,
                                                                         secondImageKeyPoints(std::move(
                                                                                 secondImageKeyPoints)) {}
 
+ImageAnalyzer::ImageAnalyzer(int neighbourhoodSize, double cohesionThreshold, int ransacIterations,
+                             double transformationErrorThreshold, string &firstImagePath,string &secondImagePath) :
+                                    ransacIterations(ransacIterations),
+                                    transformationErrorThreshold(transformationErrorThreshold),
+                                    firstImagePath(firstImagePath),
+                                    secondImagePath(secondImagePath),
+                                    initialized(false),
+                                    neighbourhoodSize(neighbourhoodSize),
+                                    cohesionThreshold(cohesionThreshold) {}
+
+ImageAnalyzer::ImageAnalyzer(int neighbourhoodSize, double cohesionThreshold, string &firstImagePath,
+                             string &secondImagePath) : firstImagePath(firstImagePath),
+                                                        secondImagePath(secondImagePath),
+                                                        initialized(false),
+                                                        neighbourhoodSize(neighbourhoodSize),
+                                                        cohesionThreshold(cohesionThreshold) {}
+
 void ImageAnalyzer::analyze() {
     if(!initialized){
         init();
@@ -27,6 +41,7 @@ void ImageAnalyzer::analyze() {
     calculatePairs();
     calculateNeighbourhoods();
     analyzeNeigbourhoodCohesion();
+    runRansacAffine();
 }
 
 void ImageAnalyzer::calculatePairs() {
@@ -70,14 +85,9 @@ void ImageAnalyzer::extractFeatures(const string &filePath) {
     system(command.c_str());
 }
 
-ImageAnalyzer::ImageAnalyzer(int neighbourhoodSize, double cohesionThreshold, string &firstImagePath,
-                             string &secondImagePath) : firstImagePath(firstImagePath),
-                                                        secondImagePath(secondImagePath),
-                                                        initialized(false),
-                                                        neighbourhoodSize(neighbourhoodSize),
-                                                        cohesionThreshold(cohesionThreshold) {}
-
 void ImageAnalyzer::init() {
+    std::random_device randomDevice;
+    randomEngine = std::default_random_engine(randomDevice());
     extractFeatures(firstImagePath);
     extractFeatures(secondImagePath);
     firstImageKeyPoints = KeyPoint::importKeyPoints(firstImagePath + FEATURE_DATA_FILE_SUFFIX);
@@ -118,4 +128,83 @@ void ImageAnalyzer::showPairs(vector<pair<KeyPoint *, KeyPoint *>> &pairs, const
     namedWindow(windowName, cv::WINDOW_AUTOSIZE );
     imshow(windowName, imstack);
     cv::waitKey(0);
+}
+
+ImageAnalyzer::~ImageAnalyzer() {
+    for(KeyPoint* keyPoint : firstImageKeyPoints){
+        delete keyPoint;
+    }
+    for(KeyPoint* keyPoint : secondImageKeyPoints){
+        delete keyPoint;
+    }
+}
+
+Eigen::Matrix3d ImageAnalyzer::runRansacAffine() {
+    Eigen::Matrix3d bestTransformation;
+    int bestScore = 0;
+    for(int i = 0; i < ransacIterations; i++){
+        Eigen::MatrixXd A = nextRandomAffineTransform();
+        int score = 0;
+        for(auto& pair : coherentKeyPointPairs){
+            Eigen::Vector3d point;
+            point << pair.first->getX(),
+                     pair.first->getY(),
+                     1;
+            Eigen::Vector3d transformedPoint = A * point;
+            double distance = pair.second->euclideanDistance(transformedPoint(0), transformedPoint(1));
+            if(distance < transformationErrorThreshold){
+                score++;
+            }
+        }
+        if(score > bestScore){
+            bestScore = score;
+            bestTransformation = A;
+            std::cout << "current score: " << bestScore << "best possible: " << coherentKeyPointPairs.size();
+        }
+    }
+    return bestTransformation;
+}
+
+vector<pair<KeyPoint*, KeyPoint*>> ImageAnalyzer::getNDifferentCoherentKeyPointPairs(int n) {
+    unordered_set<int> indices;
+    std::uniform_int_distribution<int> distribution(0, coherentKeyPointPairs.size() -1);
+    while(indices.size() != n) {
+        int randomIndex = distribution(randomEngine);
+        indices.insert(randomIndex);
+    }
+    vector<pair<KeyPoint*, KeyPoint*>> result;
+    for(int index : indices){
+        result.push_back(coherentKeyPointPairs[index]);
+    }
+    return result;
+}
+
+Eigen::MatrixXd ImageAnalyzer::nextRandomAffineTransform() {
+    vector<pair<KeyPoint*, KeyPoint*>> randomKeyPoints = getNDifferentCoherentKeyPointPairs(3);
+    KeyPoint *firstPointA = randomKeyPoints[0].first;
+    KeyPoint *secondPointA = randomKeyPoints[1].first;
+    KeyPoint *thirdPointA = randomKeyPoints[2].first;
+    KeyPoint *firstPointB = randomKeyPoints[0].second;
+    KeyPoint *secondPointB = randomKeyPoints[1].second;
+    KeyPoint *thirdPointB = randomKeyPoints[2].second;
+    Eigen::MatrixXd X(6,6);
+    X << firstPointA->getX(), firstPointA->getY(), 1, 0, 0, 0,
+            secondPointA->getX(), secondPointA->getY(), 1, 0, 0, 0,
+            thirdPointA->getX(), thirdPointA->getY(), 1, 0, 0, 0,
+            0, 0, 0, firstPointA->getX(), firstPointA->getY(), 1,
+            0, 0, 0, secondPointA->getX(), secondPointA->getY(), 1,
+            0, 0, 0, thirdPointA->getX(), thirdPointA->getY(), 1;
+    Eigen::VectorXd Y(6);
+    Y << firstPointB->getX(),
+         secondPointB->getX(),
+         thirdPointB->getX(),
+         firstPointB->getY(),
+         secondPointB->getY(),
+         thirdPointB->getY();
+    Eigen::VectorXd vec = X.inverse() * Y;
+    Eigen::MatrixXd result(3,3);
+    result << vec(0), vec(1), vec(2),
+              vec(3), vec(4), vec(5),
+              0, 0, 1;
+    return result;
 }

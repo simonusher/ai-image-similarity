@@ -83,14 +83,22 @@ KeyPoint::getKeyPointPairs(vector<KeyPoint *> &firstKeyPoints, vector<KeyPoint *
     return pairs;
 }
 
-double KeyPoint::squaredEuclideanDistance(KeyPoint &other){
-    double xdiff = this->x - other.x;
-    double ydiff = this->y - other.y;
-    return xdiff * xdiff + ydiff * ydiff;
+double KeyPoint::euclideanDistance(KeyPoint& other) {
+    return euclideanDistance(other.x, other.y);
 }
 
-double KeyPoint::euclideanDistance(KeyPoint& other) {
-    return sqrt(squaredEuclideanDistance(other));
+double KeyPoint::squaredEuclideanDistance(KeyPoint &other){
+    return squaredEuclideanDistance(other.x, other.y);
+}
+
+double KeyPoint::euclideanDistance(double otherX, double otherY) {
+    return sqrt(squaredEuclideanDistance(otherX, otherY));
+}
+
+double KeyPoint::squaredEuclideanDistance(double otherX, double otherY) {
+    double xdiff = this->x - otherX;
+    double ydiff = this->y - otherY;
+    return xdiff * xdiff + ydiff * ydiff;
 }
 
 void KeyPoint::calculateNeighbourhood(vector<KeyPoint *> &allImageKeyPoints, int neighbourhoodSize) {
