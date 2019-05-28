@@ -148,14 +148,14 @@ void ImageAnalyzer::showPairs(vector<pair<KeyPoint *, KeyPoint *>> &pairs, const
 
 vector<pair<KeyPoint*, KeyPoint*>> ImageAnalyzer::getNDifferentCoherentKeyPointPairs(int n) {
     unordered_set<int> indices;
-    std::uniform_int_distribution<int> distribution(0, coherentKeyPointPairs.size() -1);
+    std::uniform_int_distribution<int> distribution(0, keyPointPairs.size() -1);
     while(indices.size() != n) {
         int randomIndex = distribution(randomEngine);
         indices.insert(randomIndex);
     }
     vector<pair<KeyPoint*, KeyPoint*>> result;
     for(int index : indices){
-        result.push_back(coherentKeyPointPairs[index]);
+        result.push_back(keyPointPairs[index]);
     }
     return result;
 }
@@ -173,11 +173,11 @@ void ImageAnalyzer::runRansacAffine() {
     vector<pair<KeyPoint*, KeyPoint*>> bestConsensus;
     int bestScore = 0;
     for(int i = 0; i < ransacIterations; i++){
-        Eigen::MatrixXd A = nextRandomAffineTransform();
-//        Eigen::MatrixXd A = nextRandomPerspectiveTransform();
+//        Eigen::MatrixXd A = nextRandomAffineTransform();
+        Eigen::MatrixXd A = nextRandomPerspectiveTransform();
         vector<pair<KeyPoint*, KeyPoint*>> consensus;
-        consensus.reserve(coherentKeyPointPairs.size());
-        for(auto& pair : coherentKeyPointPairs){
+        consensus.reserve(keyPointPairs.size());
+        for(auto& pair : keyPointPairs){
             Eigen::Vector3d point;
             point << pair.first->getX(),
                     pair.first->getY(),
@@ -192,7 +192,7 @@ void ImageAnalyzer::runRansacAffine() {
             bestScore = consensus.size();
             bestTransformation = A;
             bestConsensus = consensus;
-            std::cout << "current score: " << bestScore << "best possible: " << coherentKeyPointPairs.size() << std::endl;
+            std::cout << "current score: " << bestScore << "best possible: " << keyPointPairs.size() << std::endl;
         }
     }
     this->bestFoundTransformation = bestTransformation;
