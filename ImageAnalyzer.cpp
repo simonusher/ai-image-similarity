@@ -47,10 +47,17 @@ void ImageAnalyzer::analyze() {
     if(!initialized){
         init();
     }
+    std::cout << "Calculating key point pairs..." << std::endl;
     calculatePairs();
+    std::cout << "Found " << keyPointPairs.size() << " key point pairs." << std::endl;
+    std::cout << "Calculating neighbourhoods..." << std::endl;
     calculateNeighbourhoods();
+    std::cout << "Analyzing cohesion..." << std::endl;
     analyzeNeigbourhoodCohesion();
+    std::cout << "Found " << coherentKeyPointPairs.size() << " coherent pairs. "<< std::endl;
+    std::cout << "Running ransac" << std::endl;
     runRansac();
+    std::cout << "Found " << matchingTransformKeyPointPairs.size() << " pairs matching transform. " << std::endl;
 }
 
 void ImageAnalyzer::calculatePairs() {
@@ -90,8 +97,12 @@ void ImageAnalyzer::analyzeNeigbourhoodCohesion() {
 }
 
 void ImageAnalyzer::extractFeatures(const string &filePath) {
-    string command = "extract_features -haraff -sift -i " + filePath;
-    system(command.c_str());
+    if(!std::ifstream(filePath + FEATURE_DATA_FILE_SUFFIX).good()){
+        string command = "extract_features -haraff -sift -i " + filePath;
+        system(command.c_str());
+    } else {
+        std::cout << "Skipping file: " << filePath << ". Already extracted..." << std::endl;
+    }
 }
 
 void ImageAnalyzer::init() {
@@ -121,9 +132,10 @@ void ImageAnalyzer::showPairsMatchingTransform() {
     showPairs(matchingTransformKeyPointPairs, "Matching transform key point pairs");
 }
 
-void ImageAnalyzer::showPairs(vector<pair<KeyPoint *, KeyPoint *>> &pairs, const string& windowName, bool hstack) {
+void ImageAnalyzer::showPairs(vector<pair<KeyPoint *, KeyPoint *>> &pairs, const string& windowName) {
     cv::Mat im1 = cv::imread(firstImagePath, 1);
     cv::Mat im2 = cv::imread(secondImagePath, 1);
+    bool hstack = im1.cols < im1.rows;
     cv::Mat imstack;
     int vOffset = 0;
     int hOffset = 0;
@@ -161,20 +173,20 @@ vector<pair<KeyPoint*, KeyPoint*>> ImageAnalyzer::getNDifferentCoherentKeyPointP
 }
 
 void ImageAnalyzer::runRansac() {
-    if(coherentKeyPointPairs.size() < 3){
-        matchingTransformKeyPointPairs = coherentKeyPointPairs;
+    if(keyPointPairs.size() < 3){
+        matchingTransformKeyPointPairs = keyPointPairs;
     } else {
-        runRansacAffine();
+        runRansacImpl();
     }
 }
 
-void ImageAnalyzer::runRansacAffine() {
+void ImageAnalyzer::runRansacImpl() {
     Eigen::Matrix3d bestTransformation;
     vector<pair<KeyPoint*, KeyPoint*>> bestConsensus;
     int bestScore = 0;
     for(int i = 0; i < ransacIterations; i++){
-//        Eigen::MatrixXd A = nextRandomAffineTransform();
-        Eigen::MatrixXd A = nextRandomPerspectiveTransform();
+        Eigen::MatrixXd A = nextRandomAffineTransform();
+//        Eigen::MatrixXd A = nextRandomPerspectiveTransform();
         vector<pair<KeyPoint*, KeyPoint*>> consensus;
         consensus.reserve(keyPointPairs.size());
         for(auto& pair : keyPointPairs){
@@ -183,6 +195,8 @@ void ImageAnalyzer::runRansacAffine() {
                     pair.first->getY(),
                     1;
             Eigen::Vector3d transformedPoint = A * point;
+            transformedPoint(0) = transformedPoint(0) / transformedPoint(2);
+            transformedPoint(1) = transformedPoint(1) / transformedPoint(2);
             double distance = pair.second->euclideanDistance(transformedPoint(0), transformedPoint(1));
             if(distance < transformationErrorThreshold){
                 consensus.push_back(pair);

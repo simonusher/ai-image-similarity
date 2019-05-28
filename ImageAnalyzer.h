@@ -40,10 +40,10 @@ public:
     static const string FEATURE_DATA_FILE_SUFFIX;
 
 private:
-    void runRansacAffine();
+    void runRansacImpl();
     void showAllPairs();
     void showCoherentPairs();
-    void showPairs(vector<pair<KeyPoint *, KeyPoint *>>& pairs, const string& windowName, bool hstack = true);
+    void showPairs(vector<pair<KeyPoint *, KeyPoint *>>& pairs, const string& windowName);
     void showPairsMatchingTransform();
     void calculatePairs();
     void calculateNeighbourhoods();
