@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
             return -1;
         } else {
             auto start = chrono::system_clock::now();
-            ImageAnalyzer imageAnalyzer(150, 0.5, 10000, 1, firstFileName, secondFileName);
+            ImageAnalyzer imageAnalyzer(150, 0.8, 10000, 1, firstFileName, secondFileName);
             imageAnalyzer.analyze();
             auto end = chrono::system_clock::now();
             std::cout << "Elapsed time: " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << " milis." << std:: endl;

@@ -12,24 +12,25 @@ using std::unordered_set;
 #ifndef INC_4_IMAGE_SIMILARITY_C_IMAGEANALYZER_H
 #define INC_4_IMAGE_SIMILARITY_C_IMAGEANALYZER_H
 
+enum RansacHeuristic {
+    Distance,
+    Distribution,
+    Iterations
+};
+
+enum TransformationType {
+    Affine,
+    Perspective
+};
+
 class ImageAnalyzer {
 public:
-    ImageAnalyzer(int neighbourhoodSize,
-            double cohesionThreshold,
-            string& firstImagePath,
-            string& secondImagePath);
-
     ImageAnalyzer(int neighbourhoodSize,
                   double cohesionThreshold,
                   int ransacIterations,
                   double transformationErrorThreshold,
                   string& firstImagePath,
                   string& secondImagePath);
-
-    ImageAnalyzer(int neighbourhoodSize,
-            double cohesionThreshold,
-            vector<KeyPoint *> firstImageKeyPoints,
-            vector<KeyPoint *> secondImageKeyPoints);
 
     ~ImageAnalyzer();
     void init();

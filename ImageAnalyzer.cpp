@@ -7,16 +7,6 @@
 
 const string ImageAnalyzer::FEATURE_DATA_FILE_SUFFIX = ".haraff.sift";
 
-ImageAnalyzer::ImageAnalyzer(int neighbourhoodSize,
-                             double cohesionThreshold,
-                             vector<KeyPoint *> firstImageKeyPoints,
-                             vector<KeyPoint *> secondImageKeyPoints) : initialized(true),
-                                                                        neighbourhoodSize(neighbourhoodSize),
-                                                                        cohesionThreshold(cohesionThreshold),
-                                                                        firstImageKeyPoints(std::move(firstImageKeyPoints)),
-                                                                        secondImageKeyPoints(std::move(
-                                                                                secondImageKeyPoints)) {}
-
 ImageAnalyzer::ImageAnalyzer(int neighbourhoodSize, double cohesionThreshold, int ransacIterations,
                              double transformationErrorThreshold, string &firstImagePath,string &secondImagePath) :
                                     ransacIterations(ransacIterations),
@@ -27,12 +17,6 @@ ImageAnalyzer::ImageAnalyzer(int neighbourhoodSize, double cohesionThreshold, in
                                     neighbourhoodSize(neighbourhoodSize),
                                     cohesionThreshold(cohesionThreshold) {}
 
-ImageAnalyzer::ImageAnalyzer(int neighbourhoodSize, double cohesionThreshold, string &firstImagePath,
-                             string &secondImagePath) : firstImagePath(firstImagePath),
-                                                        secondImagePath(secondImagePath),
-                                                        initialized(false),
-                                                        neighbourhoodSize(neighbourhoodSize),
-                                                        cohesionThreshold(cohesionThreshold) {}
 
 ImageAnalyzer::~ImageAnalyzer() {
     for(KeyPoint* keyPoint : firstImageKeyPoints){
