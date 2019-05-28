@@ -13,6 +13,7 @@ using std::unordered_set;
 #define INC_4_IMAGE_SIMILARITY_C_IMAGEANALYZER_H
 
 enum RansacHeuristic {
+    None,
     Distance,
     Distribution,
     Iterations
@@ -29,6 +30,7 @@ public:
                   double cohesionThreshold,
                   int ransacIterations,
                   double transformationErrorThreshold,
+                  TransformationType transformationType,
                   string& firstImagePath,
                   string& secondImagePath);
 
@@ -41,6 +43,7 @@ public:
     static const string FEATURE_DATA_FILE_SUFFIX;
 
 private:
+    void runRansac();
     void runRansacImpl();
     void showAllPairs();
     void showCoherentPairs();
@@ -51,13 +54,18 @@ private:
     void analyzeNeigbourhoodCohesion();
     Eigen::MatrixXd nextRandomAffineTransform();
     Eigen::MatrixXd nextRandomPerspectiveTransform();
-
     vector<pair<KeyPoint*, KeyPoint*>> getNDifferentCoherentKeyPointPairs(int n);
+
     bool initialized;
     int ransacIterations;
+    int neighbourhoodSize;
+    double cohesionThreshold;
     double transformationErrorThreshold;
     string firstImagePath;
     string secondImagePath;
+    RansacHeuristic ransacHeuristic;
+    TransformationType transformationType;
+
     vector<KeyPoint*> firstImageKeyPoints;
     vector<KeyPoint*> secondImageKeyPoints;
 
@@ -70,11 +78,7 @@ private:
     Eigen::MatrixXd bestFoundTransformation;
 
     std::default_random_engine randomEngine;
-    int neighbourhoodSize;
 
-    double cohesionThreshold;
-
-    void runRansac();
 };
 
 

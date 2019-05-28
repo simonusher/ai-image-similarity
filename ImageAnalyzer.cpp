@@ -8,14 +8,15 @@
 const string ImageAnalyzer::FEATURE_DATA_FILE_SUFFIX = ".haraff.sift";
 
 ImageAnalyzer::ImageAnalyzer(int neighbourhoodSize, double cohesionThreshold, int ransacIterations,
-                             double transformationErrorThreshold, string &firstImagePath,string &secondImagePath) :
+                             double transformationErrorThreshold, TransformationType transformationType,string &firstImagePath,string &secondImagePath) :
                                     ransacIterations(ransacIterations),
                                     transformationErrorThreshold(transformationErrorThreshold),
                                     firstImagePath(firstImagePath),
                                     secondImagePath(secondImagePath),
                                     initialized(false),
                                     neighbourhoodSize(neighbourhoodSize),
-                                    cohesionThreshold(cohesionThreshold) {}
+                                    cohesionThreshold(cohesionThreshold),
+                                    transformationType(transformationType){}
 
 
 ImageAnalyzer::~ImageAnalyzer() {

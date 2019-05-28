@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 project(image_similarity)
 find_package( OpenCV REQUIRED )
+find_package( Boost REQUIRED COMPONENTS program_options)
 set(CMAKE_CXX_STANDARD 17)
 
 add_executable(
@@ -12,3 +13,4 @@ add_executable(
         main.cpp
         )
 target_link_libraries( image_similarity ${OpenCV_LIBS} )
+target_link_libraries(image_similarity Boost::program_options)
