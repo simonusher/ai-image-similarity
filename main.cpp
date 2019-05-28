@@ -26,6 +26,7 @@ int main(int argc, char *argv[]) {
             ("transformation-threshold,t", po::value<double>(&transformationThreshold)->default_value(1), "transformation threshold for ransac")
             ("perspective,p", "use perspective transformation instead of default affine")
             ("heuristic,h", po::value<int>(&heuristicType)->default_value(0), "choose ransac heuristic")
+            ("show-transformed,S", "toggle showing image transformed with best ransac transformation")
             ;
     po::positional_options_description posDesc;
     posDesc.add("images", -1);
@@ -55,12 +56,13 @@ int main(int argc, char *argv[]) {
                 return -1;
             } else {
                 TransformationType transformationType = Affine;
+                bool showTransformed = vm.count("show-transformed");
                 if(vm.count("perspective")){
                     transformationType = Perspective;
                 }
                 auto start = chrono::system_clock::now();
                 ImageAnalyzer imageAnalyzer(neighbourhoodSize, cohesionThreshold, ransacIterations,
-                        transformationThreshold, transformationType, firstFileName, secondFileName);
+                        transformationThreshold, transformationType, firstFileName, secondFileName, showTransformed);
                 imageAnalyzer.analyze();
                 auto end = chrono::system_clock::now();
                 std::cout << "Elapsed time: " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << " milis." << std:: endl;

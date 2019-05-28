@@ -32,7 +32,8 @@ public:
                   double transformationErrorThreshold,
                   TransformationType transformationType,
                   string& firstImagePath,
-                  string& secondImagePath);
+                  string& secondImagePath,
+                  bool showTransformedImage);
 
     ~ImageAnalyzer();
     void init();
@@ -49,6 +50,7 @@ private:
     void showCoherentPairs();
     void showPairs(vector<pair<KeyPoint *, KeyPoint *>>& pairs, const string& windowName);
     void showPairsMatchingTransform();
+    void showTransformedImage();
     void calculatePairs();
     void calculateNeighbourhoods();
     void analyzeNeigbourhoodCohesion();
@@ -57,6 +59,7 @@ private:
     vector<pair<KeyPoint*, KeyPoint*>> getNDifferentCoherentKeyPointPairs(int n);
 
     bool initialized;
+    bool shouldShowTransformedImage;
     int ransacIterations;
     int neighbourhoodSize;
     double cohesionThreshold;

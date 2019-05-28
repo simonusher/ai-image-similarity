@@ -8,7 +8,8 @@
 const string ImageAnalyzer::FEATURE_DATA_FILE_SUFFIX = ".haraff.sift";
 
 ImageAnalyzer::ImageAnalyzer(int neighbourhoodSize, double cohesionThreshold, int ransacIterations,
-                             double transformationErrorThreshold, TransformationType transformationType,string &firstImagePath,string &secondImagePath) :
+                             double transformationErrorThreshold, TransformationType transformationType,
+                             string &firstImagePath,string &secondImagePath, bool showTransformedImage) :
                                     ransacIterations(ransacIterations),
                                     transformationErrorThreshold(transformationErrorThreshold),
                                     firstImagePath(firstImagePath),
@@ -16,7 +17,8 @@ ImageAnalyzer::ImageAnalyzer(int neighbourhoodSize, double cohesionThreshold, in
                                     initialized(false),
                                     neighbourhoodSize(neighbourhoodSize),
                                     cohesionThreshold(cohesionThreshold),
-                                    transformationType(transformationType){}
+                                    transformationType(transformationType),
+                                    shouldShowTransformedImage(showTransformedImage){}
 
 
 ImageAnalyzer::~ImageAnalyzer() {
@@ -103,6 +105,9 @@ void ImageAnalyzer::runDemonstration() {
     showAllPairs();
     showCoherentPairs();
     showPairsMatchingTransform();
+    if(shouldShowTransformedImage){
+        showTransformedImage();
+    }
 }
 
 void ImageAnalyzer::showCoherentPairs() {
@@ -115,6 +120,30 @@ void ImageAnalyzer::showAllPairs() {
 
 void ImageAnalyzer::showPairsMatchingTransform() {
     showPairs(matchingTransformKeyPointPairs, "Matching transform key point pairs");
+}
+
+void ImageAnalyzer::showTransformedImage() {
+    cv::Mat warp_dst;
+    if(transformationType == Affine){
+        double m[2][3] = {{bestFoundTransformation(0,0), bestFoundTransformation(0,1), bestFoundTransformation(0,2)},
+                          {bestFoundTransformation(1,0), bestFoundTransformation(1,1), bestFoundTransformation(1,2)}};
+        cv::Mat warp_mat( 2, 3, CV_64FC1, m);
+        cv::Mat src = cv::imread(firstImagePath, 1);
+        warp_dst = cv::Mat::zeros( src.rows, src.cols, src.type() );
+        cv::warpAffine(src, warp_dst, warp_mat, warp_dst.size());
+    } else {
+        double m[3][3] = {{bestFoundTransformation(0,0), bestFoundTransformation(0,1), bestFoundTransformation(0,2)},
+                          {bestFoundTransformation(1,0), bestFoundTransformation(1,1), bestFoundTransformation(1,2)},
+                          {bestFoundTransformation(2,0), bestFoundTransformation(2,1), bestFoundTransformation(2,2)}};
+        cv::Mat warp_mat( 3, 3, CV_64FC1, m);
+        cv::Mat src = cv::imread(firstImagePath, 1);
+        warp_dst = cv::Mat::zeros( src.rows, src.cols, src.type() );
+        cv::warpPerspective(src, warp_dst, warp_mat, warp_dst.size());
+    }
+
+    namedWindow( "Transformed", cv::WINDOW_AUTOSIZE );
+    imshow( "Transformed", warp_dst );
+    cv::waitKey(0);
 }
 
 void ImageAnalyzer::showPairs(vector<pair<KeyPoint *, KeyPoint *>> &pairs, const string& windowName) {
@@ -170,8 +199,12 @@ void ImageAnalyzer::runRansacImpl() {
     vector<pair<KeyPoint*, KeyPoint*>> bestConsensus;
     int bestScore = 0;
     for(int i = 0; i < ransacIterations; i++){
-        Eigen::MatrixXd A = nextRandomAffineTransform();
-//        Eigen::MatrixXd A = nextRandomPerspectiveTransform();
+        Eigen::MatrixXd A;
+        if(transformationType == Affine){
+            A = nextRandomAffineTransform();
+        } else {
+            A = nextRandomPerspectiveTransform();
+        }
         vector<pair<KeyPoint*, KeyPoint*>> consensus;
         consensus.reserve(keyPointPairs.size());
         for(auto& pair : keyPointPairs){
