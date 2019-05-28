@@ -21,8 +21,8 @@ using std::abs;
 
 class KeyPoint {
 public:
-    KeyPoint(double x, double y, vector<double> features);
-    double featureDistance(KeyPoint& other);
+    KeyPoint(double x, double y, vector<int> features);
+    int featureDistance(KeyPoint& other);
     double squaredEuclideanDistance(double otherX, double otherY);
     double euclideanDistance(KeyPoint& other);
     double euclideanDistance(double otherX, double otherY);
@@ -41,7 +41,7 @@ public:
 private:
     double x;
     double y;
-    vector<double> features;
+    vector<int> features;
     vector<KeyPoint*> neighbourhood;
     double len2;
 

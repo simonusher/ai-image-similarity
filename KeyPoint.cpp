@@ -6,14 +6,14 @@
 
 #include "KeyPoint.h"
 
-KeyPoint::KeyPoint(double x, double y, vector<double> features) {
+KeyPoint::KeyPoint(double x, double y, vector<int> features) {
     this->x = x;
     this->y = y;
     this->features = std::move(features);
 }
 
-double KeyPoint::featureDistance(KeyPoint &other) {
-    double distance = 0;
+int KeyPoint::featureDistance(KeyPoint &other) {
+    int distance = 0;
     for(int i = 0; i < this->features.size(); i++){
         distance += abs(this->features[i] - other.features[i]);
     }
@@ -21,10 +21,10 @@ double KeyPoint::featureDistance(KeyPoint &other) {
 }
 
 KeyPoint* KeyPoint::getClosest(vector<KeyPoint *> &keyPoints) {
-    double minDistance = std::numeric_limits<double>::max();
+    int minDistance = std::numeric_limits<int>::max();
     KeyPoint* closest = nullptr;
     for(int i = 0; i < keyPoints.size(); i++){
-        double distance = this->featureDistance(*keyPoints[i]);
+        int distance = this->featureDistance(*keyPoints[i]);
         if(distance < minDistance){
             minDistance = distance;
             closest = keyPoints[i];
@@ -38,10 +38,10 @@ KeyPoint* KeyPoint::fromString(string &text) {
     double x = std::stod(tokens[0]);
     double y = std::stod(tokens[1]);
     int nFeatures = tokens.size() - 5;
-    vector<double> features;
+    vector<int> features;
     features.reserve(nFeatures);
     for(int i = 5; i < tokens.size(); i++) {
-        features.push_back(std::stod(tokens[i]));
+        features.push_back(std::stoi(tokens[i]));
     }
     return new KeyPoint(x, y, features);
 }
