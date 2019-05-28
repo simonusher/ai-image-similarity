@@ -161,7 +161,11 @@ vector<pair<KeyPoint*, KeyPoint*>> ImageAnalyzer::getNDifferentCoherentKeyPointP
 }
 
 void ImageAnalyzer::runRansac() {
-    runRansacAffine();
+    if(coherentKeyPointPairs.size() < 3){
+        matchingTransformKeyPointPairs = coherentKeyPointPairs;
+    } else {
+        runRansacAffine();
+    }
 }
 
 void ImageAnalyzer::runRansacAffine() {
@@ -169,8 +173,8 @@ void ImageAnalyzer::runRansacAffine() {
     vector<pair<KeyPoint*, KeyPoint*>> bestConsensus;
     int bestScore = 0;
     for(int i = 0; i < ransacIterations; i++){
-//        Eigen::MatrixXd A = nextRandomAffineTransform();
-        Eigen::MatrixXd A = nextRandomPerspectiveTransform();
+        Eigen::MatrixXd A = nextRandomAffineTransform();
+//        Eigen::MatrixXd A = nextRandomPerspectiveTransform();
         vector<pair<KeyPoint*, KeyPoint*>> consensus;
         consensus.reserve(coherentKeyPointPairs.size());
         for(auto& pair : coherentKeyPointPairs){
@@ -188,7 +192,7 @@ void ImageAnalyzer::runRansacAffine() {
             bestScore = consensus.size();
             bestTransformation = A;
             bestConsensus = consensus;
-            std::cout << "current score: " << bestScore << "best possible: " << coherentKeyPointPairs.size();
+            std::cout << "current score: " << bestScore << "best possible: " << coherentKeyPointPairs.size() << std::endl;
         }
     }
     this->bestFoundTransformation = bestTransformation;
