@@ -228,6 +228,7 @@ vector<pair<KeyPoint*, KeyPoint*>> ImageAnalyzer::getNDifferentKeyPointPairs(int
 vector<pair<KeyPoint *, KeyPoint *>> ImageAnalyzer::getNDifferentKeyPointPairsHeuristic(int n) {
     unordered_set<int> indices;
     std::uniform_int_distribution<int> distribution(0, keyPointPairs.size() -1);
+    int timesFailed = 0;
     while(indices.size() != n) {
         int randomIndex = distribution(randomEngine);
         bool heuristicCorrect = true;
@@ -235,11 +236,16 @@ vector<pair<KeyPoint *, KeyPoint *>> ImageAnalyzer::getNDifferentKeyPointPairsHe
             bool correct = this->distanceHeuristicCorrect(keyPointPairs[index], keyPointPairs[randomIndex]);
             if(!correct){
                 heuristicCorrect = false;
+                timesFailed++;
                 break;
             }
         }
         if(heuristicCorrect){
             indices.insert(randomIndex);
+        }
+        if(timesFailed >= 15){
+            indices.insert(randomIndex);
+            timesFailed = 0;
         }
     }
     vector<pair<KeyPoint*, KeyPoint*>> result;
@@ -377,6 +383,6 @@ void ImageAnalyzer::initDistanceHeuristic() {
     cv::Mat first = cv::imread(firstImagePath);
     int size = std::max(first.rows, first.cols);
     smallRSquared = pow(size * 0.01f, 2);
-    bigRSquared = pow(size * 0.4f, 2);
+    bigRSquared = pow(size * 0.3f, 2);
     std::cout << smallRSquared << " " << bigRSquared << std::endl;
 }
