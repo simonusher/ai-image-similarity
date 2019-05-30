@@ -32,6 +32,7 @@ public:
                   int ransacIterations,
                   double transformationErrorThreshold,
                   TransformationType transformationType,
+                  RansacHeuristic ransacHeuristic,
                   string& firstImagePath,
                   string& secondImagePath,
                   bool showTransformedImage,
@@ -58,8 +59,14 @@ private:
     void analyzeNeigbourhoodCohesion();
     Eigen::MatrixXd nextRandomAffineTransform();
     Eigen::MatrixXd nextRandomPerspectiveTransform();
-    vector<pair<KeyPoint*, KeyPoint*>> getNDifferentCoherentKeyPointPairs(int n);
+    vector<pair<KeyPoint*, KeyPoint*>> getNDifferentKeyPointPairs(int n);
+    vector<pair<KeyPoint*, KeyPoint*>> getNDifferentKeyPointPairsHeuristic(int n);
+    vector<pair<KeyPoint*, KeyPoint*>> getNPairs(int n);
+    
+    bool distanceHeuristicCorrect(pair<KeyPoint*, KeyPoint*>& firstPair, pair<KeyPoint*, KeyPoint*>& secondPair);
 
+    double smallRSquared;
+    double bigRSquared;
     bool initialized;
     bool shouldShowTransformedImage;
     bool showTimes;
@@ -88,6 +95,8 @@ private:
     Eigen::MatrixXd bestFoundTransformation;
 
     std::default_random_engine randomEngine;
+
+    void initDistanceHeuristic();
 };
 
 

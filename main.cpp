@@ -62,8 +62,11 @@ int main(int argc, char *argv[]) {
                 }
                 bool showTimes = vm.count("show-times");
 
+                auto heuristic = static_cast<RansacHeuristic>(heuristicType);
+                std::cout << heuristic;
+
                 ImageAnalyzer imageAnalyzer(neighbourhoodSize, cohesionThreshold, ransacIterations,
-                        transformationThreshold, transformationType, firstFileName, secondFileName, showTransformed,
+                        transformationThreshold, transformationType, heuristic, firstFileName, secondFileName, showTransformed,
                         showTimes);
                 imageAnalyzer.analyze();
                 imageAnalyzer.runDemonstration();
