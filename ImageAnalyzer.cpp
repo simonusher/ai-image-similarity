@@ -358,7 +358,7 @@ Eigen::MatrixXd ImageAnalyzer::nextRandomPerspectiveTransform() {
             B4->getX(),
             B1->getY(),
             B2->getY(),
-            B3->getY();
+            B3->getY(),
             B4->getY();
     Eigen::VectorXd vec = X.inverse() * Y;
     Eigen::MatrixXd result(3,3);
