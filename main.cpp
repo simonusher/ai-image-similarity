@@ -1,6 +1,5 @@
 #include <iostream>
 #include "KeyPoint.h"
-#include "chrono"
 #include "ImageAnalyzer.h"
 #include <boost/program_options.hpp>
 using namespace std;
@@ -27,6 +26,7 @@ int main(int argc, char *argv[]) {
             ("perspective,p", "use perspective transformation instead of default affine")
             ("heuristic,h", po::value<int>(&heuristicType)->default_value(0), "choose ransac heuristic")
             ("show-transformed,S", "toggle showing image transformed with best ransac transformation")
+            ("show-times,T", "show measured times of operations")
             ;
     po::positional_options_description posDesc;
     posDesc.add("images", -1);
@@ -60,12 +60,12 @@ int main(int argc, char *argv[]) {
                 if(vm.count("perspective")){
                     transformationType = Perspective;
                 }
-                auto start = chrono::system_clock::now();
+                bool showTimes = vm.count("show-times");
+
                 ImageAnalyzer imageAnalyzer(neighbourhoodSize, cohesionThreshold, ransacIterations,
-                        transformationThreshold, transformationType, firstFileName, secondFileName, showTransformed);
+                        transformationThreshold, transformationType, firstFileName, secondFileName, showTransformed,
+                        showTimes);
                 imageAnalyzer.analyze();
-                auto end = chrono::system_clock::now();
-                std::cout << "Elapsed time: " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << " milis." << std:: endl;
                 imageAnalyzer.runDemonstration();
                 return 0;
             }

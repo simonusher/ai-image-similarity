@@ -9,7 +9,7 @@ const string ImageAnalyzer::FEATURE_DATA_FILE_SUFFIX = ".haraff.sift";
 
 ImageAnalyzer::ImageAnalyzer(int neighbourhoodSize, double cohesionThreshold, int ransacIterations,
                              double transformationErrorThreshold, TransformationType transformationType,
-                             string &firstImagePath,string &secondImagePath, bool showTransformedImage) :
+                             string &firstImagePath,string &secondImagePath, bool showTransformedImage, bool showTimes) :
                                     ransacIterations(ransacIterations),
                                     transformationErrorThreshold(transformationErrorThreshold),
                                     firstImagePath(firstImagePath),
@@ -18,7 +18,8 @@ ImageAnalyzer::ImageAnalyzer(int neighbourhoodSize, double cohesionThreshold, in
                                     neighbourhoodSize(neighbourhoodSize),
                                     cohesionThreshold(cohesionThreshold),
                                     transformationType(transformationType),
-                                    shouldShowTransformedImage(showTransformedImage){}
+                                    shouldShowTransformedImage(showTransformedImage),
+                                    showTimes(showTimes){}
 
 
 ImageAnalyzer::~ImageAnalyzer() {
@@ -34,18 +35,41 @@ void ImageAnalyzer::analyze() {
     if(!initialized){
         init();
     }
+
     std::cout << "Calculating key point pairs..." << std::endl;
+    auto start = std::chrono::system_clock::now();
     calculatePairs();
+    auto end = std::chrono::system_clock::now();
+    pairCalculationTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
     std::cout << "Found " << keyPointPairs.size() << " key point pairs." << std::endl;
+    if(showTimes){
+        std::cout << "Pair calculation time: " << pairCalculationTime << "ms" << std::endl;
+    }
+
     std::cout << "Calculating neighbourhoods..." << std::endl;
+    start = std::chrono::system_clock::now();
     calculateNeighbourhoods();
     std::cout << "Analyzing cohesion..." << std::endl;
     analyzeNeigbourhoodCohesion();
     std::cout << "Found " << coherentKeyPointPairs.size() << " coherent pairs. "<< std::endl;
+    end = std::chrono::system_clock::now();
+    coherenceAnalysisTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    if(showTimes){
+        std::cout << "Coherence analysis time: " << coherenceAnalysisTime << "ms" << std::endl;
+    }
+
+
     std::cout << "Running ransac" << std::endl;
+    start = std::chrono::system_clock::now();
     runRansac();
+    end = std::chrono::system_clock::now();
+    ransacTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
     std::cout << "Found " << matchingTransformKeyPointPairs.size() << " pairs matching transform. " << std::endl;
+    if(showTimes){
+        std::cout << "Ransac time: " << ransacTime << "ms" << std::endl;
+    }
 }
+
 
 void ImageAnalyzer::calculatePairs() {
     this->keyPointPairs = KeyPoint::getKeyPointPairs(this->firstImageKeyPoints, this->secondImageKeyPoints);

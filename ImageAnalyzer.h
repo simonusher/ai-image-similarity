@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <utility>
 #include <random>
+#include <chrono>
 #include <unordered_set>
 #include <opencv2/opencv.hpp>
 #include <eigen3/Eigen/Dense>
@@ -33,7 +34,8 @@ public:
                   TransformationType transformationType,
                   string& firstImagePath,
                   string& secondImagePath,
-                  bool showTransformedImage);
+                  bool showTransformedImage,
+                  bool showTimes);
 
     ~ImageAnalyzer();
     void init();
@@ -60,6 +62,11 @@ private:
 
     bool initialized;
     bool shouldShowTransformedImage;
+    bool showTimes;
+    long pairCalculationTime;
+    long coherenceAnalysisTime;
+    long ransacTime;
+
     int ransacIterations;
     int neighbourhoodSize;
     double cohesionThreshold;
@@ -81,7 +88,6 @@ private:
     Eigen::MatrixXd bestFoundTransformation;
 
     std::default_random_engine randomEngine;
-
 };
 
 
