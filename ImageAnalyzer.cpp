@@ -93,18 +93,19 @@ void ImageAnalyzer::calculateNeighbourhoods() {
 }
 
 void ImageAnalyzer::analyzeNeigbourhoodCohesion() {
-    for(const auto& keyPointPair : keyPointPairs){
+    double thresholdValue = neighbourhoodSize * cohesionThreshold;
+    for(const auto& keyPointPair : keyPointPairs) {
         int neighbourPairsNumber = 0;
-        for(int i = 0; neighbourPairsNumber < neighbourhoodSize && i < keyPointPairs.size(); i++){
-            pair<KeyPoint*, KeyPoint*>& otherPair = keyPointPairs[i];
-            if(keyPointPair.first != otherPair.first && keyPointPair.second != otherPair.second){
+        for(const auto& otherPair : keyPointPairs){
+            if(keyPointPair != otherPair){
                 if(keyPointPair.first->neighbourhoodContains(otherPair.first) && keyPointPair.second->neighbourhoodContains(otherPair.second)){
                     neighbourPairsNumber++;
+                    if(neighbourPairsNumber > thresholdValue){
+                        coherentKeyPointPairs.push_back(keyPointPair);
+                        break;
+                    }
                 }
             }
-        }
-        if((neighbourPairsNumber / ((double)neighbourhoodSize)) >= cohesionThreshold){
-            coherentKeyPointPairs.push_back(keyPointPair);
         }
     }
 }

@@ -42,6 +42,7 @@ private:
     double x;
     double y;
     vector<int> features;
+    int featuresSize;
     vector<KeyPoint*> neighbourhood;
     double len2;
 

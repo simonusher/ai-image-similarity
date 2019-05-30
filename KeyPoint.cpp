@@ -10,11 +10,12 @@ KeyPoint::KeyPoint(double x, double y, vector<int> features) {
     this->x = x;
     this->y = y;
     this->features = std::move(features);
+    this->featuresSize = this->features.size();
 }
 
 int KeyPoint::featureDistance(KeyPoint &other) {
     int distance = 0;
-    for(int i = 0; i < this->features.size(); i++){
+    for(int i = 0; i < this->featuresSize; i++){
         distance += abs(this->features[i] - other.features[i]);
     }
     return distance;
