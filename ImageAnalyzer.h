@@ -27,16 +27,10 @@ enum TransformationType {
 
 class ImageAnalyzer {
 public:
-    ImageAnalyzer(int neighbourhoodSize,
-                  double cohesionThreshold,
-                  int ransacIterations,
-                  double transformationErrorThreshold,
-                  TransformationType transformationType,
-                  RansacHeuristic ransacHeuristic,
-                  string& firstImagePath,
-                  string& secondImagePath,
-                  bool showTransformedImage,
-                  bool showTimes);
+    ImageAnalyzer(int neighbourhoodSize, double cohesionThreshold, int ransacIterations,
+                  double transformationErrorThreshold, TransformationType transformationType,
+                  RansacHeuristic ransacHeuristic, string &firstImagePath, string &secondImagePath,
+                  bool showTransformedImage, bool showTimes, double ransacProbability);
 
     ~ImageAnalyzer();
     void init();
@@ -57,6 +51,7 @@ private:
     void calculatePairs();
     void calculateNeighbourhoods();
     void analyzeNeigbourhoodCohesion();
+    void estimateRansacIterations();
     Eigen::MatrixXd nextRandomAffineTransform();
     Eigen::MatrixXd nextRandomPerspectiveTransform();
     vector<pair<KeyPoint*, KeyPoint*>> getNDifferentKeyPointPairs(int n);
@@ -81,6 +76,7 @@ private:
     string firstImagePath;
     string secondImagePath;
     RansacHeuristic ransacHeuristic;
+    double ransacProbability;
     TransformationType transformationType;
 
     vector<KeyPoint*> firstImageKeyPoints;

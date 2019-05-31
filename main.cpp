@@ -15,6 +15,7 @@ int main(int argc, char *argv[]) {
     int neighbourhoodSize;
     double cohesionThreshold;
     double transformationThreshold;
+    double ransacProbability = 0;
     po::options_description desc("Allowed options");
     desc.add_options()
             ("help", "produce help message")
@@ -27,6 +28,7 @@ int main(int argc, char *argv[]) {
             ("heuristic,h", po::value<int>(&heuristicType)->default_value(0), "choose ransac heuristic")
             ("show-transformed,S", "toggle showing image transformed with best ransac transformation")
             ("show-times,T", "show measured times of operations")
+            ("ransac-prob,P", po::value<double>(&ransacProbability), "set ransac probability for iterations estimation, required if heuristic=3")
             ;
     po::positional_options_description posDesc;
     posDesc.add("images", -1);
@@ -63,11 +65,14 @@ int main(int argc, char *argv[]) {
                 bool showTimes = vm.count("show-times");
 
                 auto heuristic = static_cast<RansacHeuristic>(heuristicType);
-                std::cout << heuristic;
-
+                if(heuristic == Iterations && !vm.count("ransac-prob")){
+                    std::cout << "parameter ransac-prob is required if using Iterations heuristic." << std::endl;
+                    return -1;
+                }
                 ImageAnalyzer imageAnalyzer(neighbourhoodSize, cohesionThreshold, ransacIterations,
-                        transformationThreshold, transformationType, heuristic, firstFileName, secondFileName, showTransformed,
-                        showTimes);
+                                            transformationThreshold, transformationType, heuristic, firstFileName,
+                                            secondFileName, showTransformed,
+                                            showTimes, ransacProbability);
                 imageAnalyzer.analyze();
                 imageAnalyzer.runDemonstration();
                 return 0;

@@ -9,19 +9,20 @@ const string ImageAnalyzer::FEATURE_DATA_FILE_SUFFIX = ".haraff.sift";
 
 ImageAnalyzer::ImageAnalyzer(int neighbourhoodSize, double cohesionThreshold, int ransacIterations,
                              double transformationErrorThreshold, TransformationType transformationType,
-                             RansacHeuristic ransacHeuristic,
-                             string &firstImagePath,string &secondImagePath, bool showTransformedImage, bool showTimes) :
-                                    ransacIterations(ransacIterations),
-                                    transformationErrorThreshold(transformationErrorThreshold),
-                                    firstImagePath(firstImagePath),
-                                    secondImagePath(secondImagePath),
-                                    initialized(false),
-                                    neighbourhoodSize(neighbourhoodSize),
-                                    cohesionThreshold(cohesionThreshold),
-                                    transformationType(transformationType),
-                                    shouldShowTransformedImage(showTransformedImage),
-                                    showTimes(showTimes),
-                                    ransacHeuristic(ransacHeuristic){}
+                             RansacHeuristic ransacHeuristic, string &firstImagePath, string &secondImagePath,
+                             bool showTransformedImage, bool showTimes, double ransacProbability) :
+        ransacIterations(ransacIterations),
+        transformationErrorThreshold(transformationErrorThreshold),
+        firstImagePath(firstImagePath),
+        secondImagePath(secondImagePath),
+        initialized(false),
+        neighbourhoodSize(neighbourhoodSize),
+        cohesionThreshold(cohesionThreshold),
+        transformationType(transformationType),
+        shouldShowTransformedImage(showTransformedImage),
+        showTimes(showTimes),
+        ransacHeuristic(ransacHeuristic),
+        ransacProbability(ransacProbability) {}
 
 
 ImageAnalyzer::~ImageAnalyzer() {
@@ -260,6 +261,10 @@ void ImageAnalyzer::runRansac() {
     if(keyPointPairs.size() < 3){
         matchingTransformKeyPointPairs = keyPointPairs;
     } else {
+        if(ransacHeuristic == Iterations){
+            estimateRansacIterations();
+            std::cout << "Estimated ransac iterations: " << this->ransacIterations << std::endl;
+        }
         runRansacImpl();
     }
 }
@@ -386,4 +391,25 @@ void ImageAnalyzer::initDistanceHeuristic() {
     smallRSquared = pow(size * 0.01f, 2);
     bigRSquared = pow(size * 0.3f, 2);
     std::cout << smallRSquared << " " << bigRSquared << std::endl;
+}
+
+void ImageAnalyzer::estimateRansacIterations() {
+    int n;
+    if(this->transformationType == Affine){
+        n = 3;
+    } else {
+        n = 4;
+    }
+    double w;
+    if(keyPointPairs.size() == 0){
+        this->ransacIterations = 0;
+    } else {
+        w = coherentKeyPointPairs.size() / (double)keyPointPairs.size();
+        double denom = log2(1 - pow(w, n));
+        if(denom == 0) {
+            this->ransacIterations = 0;
+        }
+        double result = log2(1 - ransacProbability) / denom;
+        this->ransacIterations = (int)result;
+    }
 }
