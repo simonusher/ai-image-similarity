@@ -235,7 +235,7 @@ vector<pair<KeyPoint *, KeyPoint *>> ImageAnalyzer::getNDifferentKeyPointPairsHe
         int randomIndex = indexDistribution(randomEngine);
         pair<KeyPoint*, KeyPoint*> randomPair = filteredDistribution[randomIndex];
         filteredDistribution = this->filterIncorrectPairs(randomPair, filteredDistribution);
-        if (filteredDistribution.size() > 0){
+        if (!filteredDistribution.empty()){
             result.push_back(randomPair);
         } else {
             filteredDistribution = distribution;
@@ -292,6 +292,9 @@ void ImageAnalyzer::runRansacImpl() {
             bestScore = consensus.size();
             bestTransformation = A;
             bestConsensus = consensus;
+            if (this->ransacHeuristic == Distribution) {
+                pairDistribution.insert(pairDistribution.end(), pairSample.begin(), pairSample.end());
+            }
             std::cout << "iter: " << i << " current score: " << bestScore << "best possible: " << keyPointPairs.size() << std::endl;
         }
     }
