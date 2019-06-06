@@ -52,12 +52,14 @@ private:
     void calculateNeighbourhoods();
     void analyzeNeigbourhoodCohesion();
     void estimateRansacIterations();
-    Eigen::MatrixXd nextRandomAffineTransform();
-    Eigen::MatrixXd nextRandomPerspectiveTransform();
-    vector<pair<KeyPoint*, KeyPoint*>> getNDifferentKeyPointPairs(int n);
-    vector<pair<KeyPoint*, KeyPoint*>> getNDifferentKeyPointPairsHeuristic(int n);
-    vector<pair<KeyPoint*, KeyPoint*>> getNPairs(int n);
-    
+    Eigen::MatrixXd getAffineTransform(vector<pair<KeyPoint*, KeyPoint*>>& pairSample);
+    Eigen::MatrixXd getPerspectiveTransform(vector<pair<KeyPoint*, KeyPoint*>>& pairSample);
+    vector<pair<KeyPoint*, KeyPoint*>> getNDifferentKeyPointPairs(int n, vector<pair<KeyPoint*, KeyPoint*>>& distribution);
+    vector<pair<KeyPoint*, KeyPoint*>> getNDifferentKeyPointPairsHeuristic(int n, vector<pair<KeyPoint*, KeyPoint*>>& distribution);
+    vector<pair<KeyPoint*, KeyPoint*>> getNPairs(int n, vector<pair<KeyPoint*, KeyPoint*>>& distribution);
+
+
+    vector<pair<KeyPoint*, KeyPoint*>> filterIncorrectPairs(pair<KeyPoint*, KeyPoint*> newPair, vector<pair<KeyPoint*, KeyPoint*>> allPairs);
     bool distanceHeuristicCorrect(pair<KeyPoint*, KeyPoint*>& firstPair, pair<KeyPoint*, KeyPoint*>& secondPair);
 
     double smallRSquared;

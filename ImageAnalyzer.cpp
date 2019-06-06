@@ -203,56 +203,44 @@ void ImageAnalyzer::showPairs(vector<pair<KeyPoint *, KeyPoint *>> &pairs, const
     cv::waitKey(0);
 }
 
-vector<pair<KeyPoint *, KeyPoint *>> ImageAnalyzer::getNPairs(int n) {
+vector<pair<KeyPoint *, KeyPoint *>> ImageAnalyzer::getNPairs(int n, vector<pair<KeyPoint*, KeyPoint*>>& distribution) {
     vector<pair<KeyPoint*, KeyPoint*>> randomKeyPoints;
     if(ransacHeuristic == Distance){
-        randomKeyPoints = getNDifferentKeyPointPairsHeuristic(n);
+        randomKeyPoints = getNDifferentKeyPointPairsHeuristic(n, distribution);
     } else {
-        randomKeyPoints = getNDifferentKeyPointPairs(n);
+        randomKeyPoints = getNDifferentKeyPointPairs(n, distribution);
     }
     return randomKeyPoints;
 }
 
-vector<pair<KeyPoint*, KeyPoint*>> ImageAnalyzer::getNDifferentKeyPointPairs(int n) {
+vector<pair<KeyPoint*, KeyPoint*>> ImageAnalyzer::getNDifferentKeyPointPairs(int n, vector<pair<KeyPoint*, KeyPoint*>>& distribution) {
     unordered_set<int> indices;
-    std::uniform_int_distribution<int> distribution(0, keyPointPairs.size() -1);
+    std::uniform_int_distribution<int> indexDistribution(0, distribution.size() -1);
     while(indices.size() != n) {
-        int randomIndex = distribution(randomEngine);
+        int randomIndex = indexDistribution(randomEngine);
         indices.insert(randomIndex);
     }
     vector<pair<KeyPoint*, KeyPoint*>> result;
     for(int index : indices){
-        result.push_back(keyPointPairs[index]);
+        result.push_back(distribution[index]);
     }
     return result;
 }
 
-vector<pair<KeyPoint *, KeyPoint *>> ImageAnalyzer::getNDifferentKeyPointPairsHeuristic(int n) {
-    unordered_set<int> indices;
-    std::uniform_int_distribution<int> distribution(0, keyPointPairs.size() -1);
-    int timesFailed = 0;
-    while(indices.size() != n) {
-        int randomIndex = distribution(randomEngine);
-        bool heuristicCorrect = true;
-        for(int index: indices){
-            bool correct = this->distanceHeuristicCorrect(keyPointPairs[index], keyPointPairs[randomIndex]);
-            if(!correct){
-                heuristicCorrect = false;
-                timesFailed++;
-                break;
-            }
-        }
-        if(heuristicCorrect){
-            indices.insert(randomIndex);
-        }
-        if(timesFailed >= 15){
-            indices.insert(randomIndex);
-            timesFailed = 0;
-        }
-    }
+vector<pair<KeyPoint *, KeyPoint *>> ImageAnalyzer::getNDifferentKeyPointPairsHeuristic(int n, vector<pair<KeyPoint*, KeyPoint*>>& distribution) {
     vector<pair<KeyPoint*, KeyPoint*>> result;
-    for(int index : indices){
-        result.push_back(keyPointPairs[index]);
+    vector<pair<KeyPoint*, KeyPoint*>> filteredDistribution = distribution;
+    while(result.size() != n) {
+        std::uniform_int_distribution<int> indexDistribution(0, filteredDistribution.size() -1);
+        int randomIndex = indexDistribution(randomEngine);
+        pair<KeyPoint*, KeyPoint*> randomPair = filteredDistribution[randomIndex];
+        filteredDistribution = this->filterIncorrectPairs(randomPair, filteredDistribution);
+        if (filteredDistribution.size() > 0){
+            result.push_back(randomPair);
+        } else {
+            filteredDistribution = distribution;
+            result.clear();
+        }
     }
     return result;
 }
@@ -272,16 +260,21 @@ void ImageAnalyzer::runRansac() {
 void ImageAnalyzer::runRansacImpl() {
     Eigen::Matrix3d bestTransformation;
     vector<pair<KeyPoint*, KeyPoint*>> bestConsensus;
+    vector<pair<KeyPoint*, KeyPoint*>> pairDistribution(this->keyPointPairs);
     int bestScore = 0;
     for(int i = 0; i < ransacIterations; i++){
         Eigen::MatrixXd A;
+        vector<pair<KeyPoint*, KeyPoint*>> pairSample;
         if(transformationType == Affine){
-            A = nextRandomAffineTransform();
+            pairSample = getNPairs(3, pairDistribution);
+            A = getAffineTransform(pairSample);
         } else {
-            A = nextRandomPerspectiveTransform();
+            pairSample = getNPairs(4, pairDistribution);
+            A = getPerspectiveTransform(pairSample);
         }
         vector<pair<KeyPoint*, KeyPoint*>> consensus;
         consensus.reserve(keyPointPairs.size());
+        vector<int> distributionIndices;
         for(auto& pair : keyPointPairs){
             Eigen::Vector3d point;
             point << pair.first->getX(),
@@ -306,14 +299,13 @@ void ImageAnalyzer::runRansacImpl() {
     this->matchingTransformKeyPointPairs = bestConsensus;
 }
 
-Eigen::MatrixXd ImageAnalyzer::nextRandomAffineTransform() {
-    vector<pair<KeyPoint*, KeyPoint*>> randomKeyPoints = getNPairs(3);
-    KeyPoint *firstPointA = randomKeyPoints[0].first;
-    KeyPoint *secondPointA = randomKeyPoints[1].first;
-    KeyPoint *thirdPointA = randomKeyPoints[2].first;
-    KeyPoint *firstPointB = randomKeyPoints[0].second;
-    KeyPoint *secondPointB = randomKeyPoints[1].second;
-    KeyPoint *thirdPointB = randomKeyPoints[2].second;
+Eigen::MatrixXd ImageAnalyzer::getAffineTransform(vector<pair<KeyPoint*, KeyPoint*>>& pairSample) {
+    KeyPoint *firstPointA = pairSample[0].first;
+    KeyPoint *secondPointA = pairSample[1].first;
+    KeyPoint *thirdPointA = pairSample[2].first;
+    KeyPoint *firstPointB = pairSample[0].second;
+    KeyPoint *secondPointB = pairSample[1].second;
+    KeyPoint *thirdPointB = pairSample[2].second;
     Eigen::MatrixXd X(6,6);
     X << firstPointA->getX(), firstPointA->getY(), 1, 0, 0, 0,
             secondPointA->getX(), secondPointA->getY(), 1, 0, 0, 0,
@@ -336,17 +328,15 @@ Eigen::MatrixXd ImageAnalyzer::nextRandomAffineTransform() {
     return result;
 }
 
-Eigen::MatrixXd ImageAnalyzer::nextRandomPerspectiveTransform() {
-    vector<pair<KeyPoint*, KeyPoint*>> randomKeyPoints = getNPairs(4);
-
-    KeyPoint *A1 = randomKeyPoints[0].first;
-    KeyPoint *A2 = randomKeyPoints[1].first;
-    KeyPoint *A3 = randomKeyPoints[2].first;
-    KeyPoint *A4 = randomKeyPoints[3].first;
-    KeyPoint *B1 = randomKeyPoints[0].second;
-    KeyPoint *B2 = randomKeyPoints[1].second;
-    KeyPoint *B3 = randomKeyPoints[2].second;
-    KeyPoint *B4 = randomKeyPoints[3].second;
+Eigen::MatrixXd ImageAnalyzer::getPerspectiveTransform(vector<pair<KeyPoint*, KeyPoint*>>& pairSample) {
+    KeyPoint *A1 = pairSample[0].first;
+    KeyPoint *A2 = pairSample[1].first;
+    KeyPoint *A3 = pairSample[2].first;
+    KeyPoint *A4 = pairSample[3].first;
+    KeyPoint *B1 = pairSample[0].second;
+    KeyPoint *B2 = pairSample[1].second;
+    KeyPoint *B3 = pairSample[2].second;
+    KeyPoint *B4 = pairSample[3].second;
     Eigen::MatrixXd X(8,8);
     X << A1->getX(), A1->getY(), 1, 0, 0, 0, (-B1->getX() * A1->getX()), (-B1->getX() * A1->getY()),
          A2->getX(), A2->getY(), 1, 0, 0, 0, (-B2->getX() * A2->getX()), (-B2->getX() * A2->getY()),
@@ -412,4 +402,11 @@ void ImageAnalyzer::estimateRansacIterations() {
         double result = log2(1 - ransacProbability) / denom;
         this->ransacIterations = (int)result;
     }
+}
+
+vector<pair<KeyPoint *, KeyPoint *>>
+ImageAnalyzer::filterIncorrectPairs(pair<KeyPoint *, KeyPoint *> newPair, vector<pair<KeyPoint *, KeyPoint *>> allPairs) {
+    vector<pair<KeyPoint *, KeyPoint *>> result;
+    std::copy_if(allPairs.begin(), allPairs.end(), std::back_inserter(result), [&](pair<KeyPoint*, KeyPoint*> pair){ return distanceHeuristicCorrect(newPair, pair); });
+    return result;
 }
