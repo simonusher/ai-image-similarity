@@ -1,0 +1,154 @@
+\documentclass{article}
+\usepackage{polski}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{algorithm}
+\hypersetup{%
+	pdfborder = {0 0 0}
+}
+
+\author{Szymon Woźniak, 235040}
+\date{16.05.2019}
+\title{Podobieństwo obrazów}
+
+
+\begin{document}
+	\pagenumbering{gobble}
+	\maketitle
+	\newpage
+	\pagenumbering{arabic}
+	
+	\section{Wstęp teoretyczny}
+	\subsection{Cel zadania}
+	Celem zadania jest określania podobieństwa obrazów poprzez poszukiwanie obiektów występujących na obu.
+	
+	\subsection{Punkty kluczowe}
+	Punkty kluczowe opisują lokalną charakterystykę wizualną danego obrazu. Każdy punkt kluczowy opisany jest wektorem cech. Do celów zadania zostanie użyty gotowe narzędzie do ekstrakcji cech, korzystający z detektora Harris-Affine i deskryptora SIFT.
+	\subsection{Wyznaczanie par punktów kluczowych}
+	Do wyznaczania par punktów kluczowych zastosowany zostanie użyty algorytm wzajemnego najbliższego sąsiada. Dla każdego punktu z jednego z obrazów zostaje wyznaczony punkt z drugiego obrazu będący najbliższy do niego w sensie podobieństwa cech. Ta sama procedura jest przeprowadzana dla punktów z drugiego obrazu. Para punktów (P, Q) zostaje utworzona tylko wtedy, gdy najbliższym punktem dla punktu P jest punkt Q, a najbliższym dla punktu Q jest punkt P. Funkcja odległości używana do porównywania punktów kluczowych ma postać:
+	\begin{equation}
+		distance(P, Q) = \sum_{i=1}^{n} |features(P, i) - features(Q, i)|,
+	\end{equation}
+	gdzie:
+	\begin{itemize}
+		\item n jest liczbą cech punktu kluczowego,
+		\item features(R, i) jest wartość i-tej cechy z punktu R.
+	\end{itemize}
+	\subsection{Algorytm analizy spójności sąsiedztwa}
+	Pary punktów kluczowych wyznaczanych przy pomocy algorytmu wzajemnego najbliższego sąsiada nie są wystarczające do wyznaczania podobieństwa obrazów. Jest tak ponieważ znacząca liczba znajdowanych par stanowi szum informacyjny.\\
+	Do odfiltrowania nieznaczących par można wykorzystać algorytm analizy spójności sąsiedztwa. Algorytm ten na wejściu przyjmuje zbiór par znalezionych na obrazach. Zachowywane są  tylko te pary, które spełniają założone kryterium spójności.
+	Najpierw dla każdego punktu na obu obrazach wyznaczane zostaje jego sąsiedztwo. Sąsiedztwem nazywany jest zbiór punktów o wielkości $k$, z tego samego obrazu, których odległość od zadanego punktu jest najmniejsza i większa od 0.\\
+	Para punktów kluczowych $(Q_i, Q_j)$ sąsiaduje z parą punktów $(P_i, P_j)$ jeżeli punkt $Q_i$ należy do sąsiedztwa punktu $P_i$, a punkt $Q_j$ należy do sąsiedztwa punktu $P_j$.
+	Sąsiedztwo pary punktów kluczowych jest nazywane \textbf{spójnym} jeżeli, para punktów kluczowych sąsiaduje z co najmniej $n$ innych par punktów kluczowych.
+	\subsection{Metoda Random Sample Consensus}
+	Metoda Random Sample Consensus("RANSAC") jest metodą pseudolosową służącą do estymacji parametrów modelu uczenia maszynowego. Jest ona zdolna wyznaczać parametry modelu nawet dla danych o dużej liczbie danych odstających.
+	Na początku metoda losuje z całego zbioru danych $D$ minimalną próbkę danych pozwalającą na przeprowadzenie uczenia. W kolejnym kroku przeprowadza się uczenie. Na koniec oceniana jest jakość modelu. Każda obserwacja sprawdzana jest pod kątem zgodności z modelem. Jeżeli wartość błędu nie przekracza zadanego progu, to mówi się że dana obserwacja jest zgodna z modelem. Obserwacje zgodne tworzą \textbf{konsensus}, a jego rozmiar oddaje ogólną jakość modelu. W metodzie RANSAC przeprowadzanych jest $i$ iteracji opisanych wcześniej, a wynikiem działania jest model posiadający największy konsensus. W opisywanym jako modele użyte zostaną dwa opisane poniżej przekształcenia geometryczne.
+	\subsubsection{Model - transformata afiniczna}
+	\textbf{Transformata afiniczna} jest złożeniem trzech przekształceń elementarnych - obrót, skalowanie i translacja. Może zostać wyznaczona przy użyciu trzech par punktów kluczowych w następujący sposób:
+	\begin{equation}
+	\left[\begin{matrix}
+	a \\
+	b \\
+	c \\
+	d \\
+	e \\
+	f \\
+	\end{matrix}\right]
+	=
+	\left[\begin{matrix}
+	x_1 & y_1 & 1 & 0 & 0 & 0 \\
+	x_2 & y_2 & 1 & 0 & 0 & 0 \\
+	x_3 & y_3 & 1 & 0 & 0 & 0 \\
+	0 & 0 & 0 & x_1 & y_1 & 1 \\
+	0 & 0 & 0 & x_2 & y_2 & 1 \\
+	0 & 0 & 0 & x_3 & y_3 & 1 \\
+	\end{matrix}\right]^{-1}
+	\left[\begin{matrix}
+	u_1 \\
+	u_2 \\
+	u_3 \\
+	v_1 \\
+	v_2 \\
+	v_3 \\
+	\end{matrix}\right]
+	\end{equation}
+	\begin{equation}
+	\textbf{A} =\left[\begin{matrix}
+	a & b & c \\
+	d & e & f \\
+	0 & 0 & 1
+	\end{matrix} \right]
+	\end{equation}
+	\subsubsection{Model - transformata perspektywiczna}
+	Transformata perspektywiczna rozszerza transformatę afiniczną o efekt rozciągnięcia/spłaszczenia wynikający z perspektywy. Można ją wyznaczyć przy pomocy 4 par punktów kluczowych według  poniższych równań:
+	 \begin{equation}
+	\left[\begin{matrix}
+	a \\
+	b \\
+	c \\
+	d \\
+	e \\
+	f \\
+	g \\
+	h \\
+	\end{matrix}\right]
+	=
+	\left[\begin{matrix}
+	x_1 & y_1 & 1 & 0 & 0 & 0 & -u_1x_1 & -u_1y_1 \\
+	x_2 & y_2 & 1 & 0 & 0 & 0 & -u_2x_2 & -u_2y_2 \\
+	x_3 & y_3 & 1 & 0 & 0 & 0 & -u_3x_3 & -u_3y_3 \\
+	x_4 & y_4 & 1 & 0 & 0 & 0 & -u_4x_4 & -u_4y_4 \\
+	0 & 0 & 0 &  x_1 & y_1 & 1 & -v_1x_1 & -v_1y_1 \\
+	0 & 0 & 0 &  x_2 & y_2 & 1 & -v_2x_2 & -v_2y_2 \\
+	0 & 0 & 0 &  x_3 & y_3 & 1 & -v_3x_3 & -v_3y_3 \\
+	0 & 0 & 0 &  x_4 & y_4 & 1 & -v_4x_4 & -v_4y_4 \\
+	\end{matrix}\right]^{-1}
+	\left[\begin{matrix}
+	u_1 \\
+	u_2 \\
+	u_3 \\
+	u_4 \\
+	v_1 \\
+	v_2 \\
+	v_3 \\
+	v_4 \\
+	\end{matrix}\right]
+	\end{equation}
+	\begin{equation}
+	\textbf{H} =\left[\begin{matrix}
+	a & b & c \\
+	d & e & f \\
+	g & h & 1
+	\end{matrix} \right]
+	\end{equation}
+	\subsection{Heurystyki przyspieszające metodę RANSAC}
+	\subsubsection{Heurystyki odległości par punktów}
+	Ta heurystyka mówi, że jako próbka do algorytmu RANSAC powinny być wybierane punkty leżące stosunkowo blisko siebie. Ograniczeniem może być na przykład to, że odległość pomiędzy każdą parą wybranych punktów powinna być większa niż $1\%$ i mniejsza niż $30\%$ wielkości obrazu.
+	\subsubsection{Heurystyka modyfikacji rozkładu}
+	Ta heurystyka mówi, że rozkład prawdopodobieństwa wyboru par punktów kluczowych powinien być modyfikowany w trakcie działania metody. Pary punktów, które uzyskiwały większe rozmiary konsensusu powinny być losowane z większym prawdopodobieństwem.
+	\subsubsection{Heurystyka liczby iteracji}
+	W podstawowej wersji metody RANSAC liczba iteracji jest stała i musi zostać podana przez użytkownika. Jeżeli jednak podana liczba iteracji będzie zbyt duża w stosunku  do trudności problemu, to od pewnego momentu metoda może nie generować już lepszych modeli. Liczbę iteracji można jednak oszacować zgodnie ze wzorem: 
+	\begin{equation}
+		k = \frac{log\left(1 - p\right)}{log\left(1 - w^n\right)}
+	\end{equation}
+	, gdzie: 
+	\begin{itemize}
+		\item $p$ - prawdopodobieństwo, że po oszacowanej liczbie iteracji model jest dostatecznie dobrym przybliżeniem danych,
+		\item $w$ - prawdopodobieństwo, że wylosowana para nie jest szumem,
+		\item $n$ - liczba par potrzebnych do wyznaczenia parametrów transformaty (3 lub 4),
+		\item $k$ - szacowana liczba iteracji.
+	\end{itemize}
+	Prawdopodobieństwo $p$ musi zostać zadane przez użytkownika. Prawdopodobieństwo $w$ może zostać oszacowane jako stosunek liczby par przed i po zastosowaniu algorytmu analizy spójności sąsiedztwa.
+	\section{Badania}
+	\subsection{Skuteczność algorytmu analizy spójności sąsiedztwa}
+	Wyniki badań skuteczność algorytmu spójności sąsiedztwa zostaną przedstawione jako porównanie dwóch par obrazów z naniesionymi parami punktów kluczowych. Jedna para będzie reprezentować wszystkie znalezione pary, a druga pary po zastosowaniu algorytmu analizy spójności sąsiedztwa.
+	\subsection{Skuteczność działania metody RANSAC}
+	\subsubsection{Transformata afiniczna}
+	\subsubsection{Transformata perspektywiczna}
+	\subsubsection{Wpływ parametrów algorytmu}
+	\subsubsection{Wpływ heurystyk metody RANSAC}
+	
+	
+\end{document}
