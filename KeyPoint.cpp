@@ -11,6 +11,7 @@ KeyPoint::KeyPoint(double x, double y, vector<int> features) {
     this->y = y;
     this->features = std::move(features);
     this->featuresSize = this->features.size();
+    this->closest = nullptr;
 }
 
 int KeyPoint::featureDistance(KeyPoint &other) {
@@ -22,15 +23,19 @@ int KeyPoint::featureDistance(KeyPoint &other) {
 }
 
 KeyPoint* KeyPoint::getClosest(vector<KeyPoint *> &keyPoints) {
-    int minDistance = std::numeric_limits<int>::max();
-    KeyPoint* closest = nullptr;
-    for(int i = 0; i < keyPoints.size(); i++){
-        int distance = this->featureDistance(*keyPoints[i]);
-        if(distance < minDistance){
-            minDistance = distance;
-            closest = keyPoints[i];
+    if (closest == nullptr){
+        int minDistance = std::numeric_limits<int>::max();
+        KeyPoint* newClosest = nullptr;
+        for(int i = 0; i < keyPoints.size(); i++){
+            int distance = this->featureDistance(*keyPoints[i]);
+            if(distance < minDistance){
+                minDistance = distance;
+                newClosest = keyPoints[i];
+            }
         }
+        closest = newClosest;
     }
+
     return closest;
 }
 

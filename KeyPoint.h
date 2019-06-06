@@ -45,6 +45,7 @@ private:
     int featuresSize;
     vector<KeyPoint*> neighbourhood;
     double len2;
+    KeyPoint* closest;
 
     static vector<string> splitInputLine(string &line);
 };
