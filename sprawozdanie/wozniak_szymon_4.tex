@@ -5,6 +5,8 @@
 \usepackage{hyperref}
 \usepackage{float}
 \usepackage{algorithm}
+\usepackage{subcaption}
+\graphicspath{ {./images/} }
 \hypersetup{%
 	pdfborder = {0 0 0}
 }
@@ -142,11 +144,248 @@
 	\end{itemize}
 	Prawdopodobieństwo $p$ musi zostać zadane przez użytkownika. Prawdopodobieństwo $w$ może zostać oszacowane jako stosunek liczby par przed i po zastosowaniu algorytmu analizy spójności sąsiedztwa.
 	\section{Badania}
+	\subsection{Wykorzystane pary obrazów}
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{hp11.png}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{hp12.png}
+		\end{subfigure}
+		\caption{Książka "Harry Potter i Kamień Filozoficzny" w dwóch różnych ujęciach.}
+		\label{fig:hp1}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{hp21.png}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{hp22.png}
+		\end{subfigure}
+		\caption{Książka Harry Potter i Przeklęte Dziecko w dwóch różnych ujęciach.}
+		\label{fig:hp2}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{martin11.png}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{martin12.png}
+		\end{subfigure}
+		\caption{Książka "Brudne Gry" w dwóch różnych ujęciach.}
+		\label{fig:martin}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{k1.png}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{k2.png}
+		\end{subfigure}
+		\caption{Kubek w dwóch różnych ujęciach.}
+		\label{fig:kubek}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{house1.png}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{house2.png}
+		\end{subfigure}
+		\caption{Ossolineum w dwóch różnych ujęciach.}
+		\label{fig:ossolineum}
+	\end{figure}
 	\subsection{Skuteczność algorytmu analizy spójności sąsiedztwa}
-	Wyniki badań skuteczność algorytmu spójności sąsiedztwa zostaną przedstawione jako porównanie dwóch par obrazów z naniesionymi parami punktów kluczowych. Jedna para będzie reprezentować wszystkie znalezione pary, a druga pary po zastosowaniu algorytmu analizy spójności sąsiedztwa.
+	Wyniki badań skuteczność algorytmu spójności sąsiedztwa zostaną przedstawione jako porównanie dwóch par obrazów z naniesionymi parami punktów kluczowych. Jedna para będzie reprezentować wszystkie znalezione pary, a druga pary po zastosowaniu algorytmu analizy spójności sąsiedztwa. Do przeprowadzenia tych badań wykorzystane zostaną zdjęcia z rysunku \ref{fig:ossolineum}.\\
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.6\linewidth]{1allpairs.png}
+		\caption{Wszystkie pary punktów kluczowych znalezione na obrazach Ossolineum}
+	\end{figure}
+	\subsubsection{Wpływ wielkości sąsiedztwa na skuteczność algorytmu spójności}
+	Wielkość sąsiedztwa została zbadana przy wartości progu spójności ustawionej na 0.5.
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{s50.png}
+			\caption{n=50}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{s100.png}
+			\caption{n=100}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{s150.png}
+			\caption{n=150}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{s200.png}
+			\caption{n=200}
+		\end{subfigure}
+		\caption{Pary punktów kluczowych odfiltrowane za pomocą algorytmu spójności sąsiedztwa dla różnych wartości wielkości sąsiedztwa.}
+		\label{fig:nsize}
+	\end{figure}
+
+	\begin{table}[H]
+		\centering
+		\caption{Porównanie liczby zaakceptowanych par punktów kluczowych i czasu przetwarzania w zależności od wielkości sąsiedztwa}
+		\label{tab:nsize}
+		\begin{tabular}{|r|r|r|}
+			\hline
+			\multicolumn{1}{|c|}{\textbf{Wielkość sąsiedztwa}} & \multicolumn{1}{c|}{\textbf{Liczba par spójnych}} & \multicolumn{1}{l|}{\textbf{Czas{[}ms{]}}} \\ \hline
+			50                                                 & 97                                                & 180                                        \\ \hline
+			100                                                & 88                                                & 190                                        \\ \hline
+			150                                                & 141                                               & 200                                        \\ \hline
+			200                                                & 188                                               & 215                                        \\ \hline
+		\end{tabular}
+	\end{table}
+
+	\paragraph{Wnioski}
+	Ustalenie dobrej wartości parametru wielkości sąsiedztwa jest istotnym wymogiem poprawnego działania algorytmu analizy spójności sąsiedztwa. Przy dobieraniu wartości tego parametru można kierować się gęstością punktów kluczowych na analizowanych obrazach. Im jest ona większa tym większa powinna być ustalona wielkość sąsiedztwa.
+	Jak widać na rysunku \ref{fig:nsize} przy zbyt małych wartościach tego parametru algorytm może pominąć istotne punkty. Z kolei jeżeli jest on za duży, to mogą zostać znalezione pary będące szumem. Dla analizowanego obrazu wartości pomiędzy 100 a 150 wydają się być odpowiednie.\\
+	Jak widać w tabeli \ref{tab:nsize}, wpływ ustalonej wartości tego parametru na czas działania algorytmu istnieje, natomiast jest stosunkowo mały i prawdopodobnie może zostać pominięty.
+
+	\subsubsection{Wpływ progu spójności na skuteczność algorytmu}
+	Wpływ progu spójności sąsiedztwa został zbadany przy wartości wielkości sąsiedztwa ustawionej na n=100.
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{c05.png}
+			\caption{c=0.5}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{c06.png}
+			\caption{c=0.6}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{c07.png}
+			\caption{c=0.7}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{c08.png}
+			\caption{c=0.8}
+		\end{subfigure}
+		\caption{Pary punktów kluczowych odfiltrowane za pomocą algorytmu spójności sąsiedztwa dla różnych wartości progu spójności.}
+		\label{fig:cthresh}
+	\end{figure}
+
+	\begin{table}[H]
+		\centering
+		\caption{Porównanie liczby zaakceptowanych par punktów kluczowych w zależności od wartości progu spójności sąsiedztwa}
+		\begin{tabular}{|r|r|}
+			\hline
+			\multicolumn{1}{|c|}{\textbf{Próg spójności}} & \multicolumn{1}{c|}{\textbf{Liczba par spójnych}} \\ \hline
+			0.5                                           & 88                                                \\ \hline
+			0.6                                           & 62                                                \\ \hline
+			0.7                                           & 54                                                \\ \hline
+			0.8                                           & 16                                                \\ \hline
+			0.9                                           & 0                                                 \\ \hline
+		\end{tabular}
+	\end{table}
+	
+	\paragraph{Wnioski}
+	Ustalenie dobrej wartości parametru wielkości sąsiedztwa jest kolejną istotną kwestią przy dobieraniu parametrów do algorytmu analizy spójności sąsiedztwa. Wartość tego parametru jest powiązana z wielkością sąsiedztwa więc wartości dla obu parametry powinny być ustalane równocześnie.
+	Jak widać na rysunku \ref{fig:cthresh} zbyt małe wartości tego parametru mogą skutkować akceptowaniem par stanowiących szum. Z kolei zbyt duże wartości mogą powodować zgubienie istotnej, pod kątem analizy podobieństwa, informacji.\\
+	Wpływ wielkości tego parametru na czas działania algorytmu okazał się nieznaczący.
 	\subsection{Skuteczność działania metody RANSAC}
-	\subsubsection{Transformata afiniczna}
-	\subsubsection{Transformata perspektywiczna}
+	\subsubsection{Wpływ rodzaju transformaty}
+	Badania w tej sekcji zostaną przedstawione jako zestawienia wyników działania metody RANSAC na dwóch różnych obrazach przy wykorzystaniu transformaty afinicznej i transformaty perspektywicznej.\\
+	Wszystkie badania w tej sekcji zostały przeprowadzone bez użycia heurystyk, z wartościami parametrów:
+	\begin{itemize}
+		\item liczba iteracji = 10000,
+		\item próg akceptacji = 1.
+	\end{itemize}
+	
+	\paragraph{Para obrazów bez zmiany perspektywy}
+	Na tej parze obrazów, obiekt jest w obu przypadkach widoczny od frontu. Liczba wszystkich par punktów kluczowych na obrazie wynosi $371$.
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.6\linewidth]{all1trans.png}
+		\caption{Wszystkie pary punktów kluczowych znalezione na zdjęciach książki "Brudne gry".}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{a1-match.png}
+			\caption{Transformata afiniczna}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{p1-match.png}
+			\caption{Transformata perspektywiczna}
+		\end{subfigure}
+		\caption{Pary punktów kluczowych znalezione przez metodę RANSAC na zdjęciach książki "Brudne gry" przy użyciu obu przekształceń geometrycznych.}
+		\label{fig:transforms11}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{a1-trans.png}
+			\caption{Transformata afiniczna}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{p1-trans.png}
+			\caption{Transformata perspektywiczna}
+		\end{subfigure}
+		\caption{Najlepsze znalezione przekształcenia geometryczne zaaplikowane do całego pierwszego zdjęcia.}
+		\label{fig:transforms12}
+	\end{figure}
+
+	
+
+	\paragraph{Para obrazów ze zmianą perspektywy}
+	Na tej parze obrazów, kąt patrzenia na obiekt się zmienia. Liczba par punktów kluczowych na obrazach wynosi $328$.
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.6\linewidth]{all2trans.png}
+		\caption{Wszystkie pary punktów kluczowych znalezione na zdjęciach książki "Harry Potter i przeklęte dziecko".}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{a2-match.png}
+			\caption{Transformata afiniczna}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{p2-match.png}
+			\caption{Transformata perspektywiczna}
+		\end{subfigure}
+		\caption{Pary punktów kluczowych znalezione na zdjęciach książki "Harry Potter i przeklęte dziecko" przez metodę RANSAC przy użyciu obu przekształceń geometrycznych.}
+		\label{fig:transforms21}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{a2-trans.png}
+			\caption{Transformata afiniczna}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{p2-trans.png}
+			\caption{Transformata perspektywiczna}
+		\end{subfigure}
+		\caption{Najlepsze znalezione przekształcenia geometryczne zaaplikowane do całego pierwszego zdjęcia.}
+		\label{fig:transforms22}
+	\end{figure}
+
+	\begin{table}[H]
+		\caption{Liczba par punktów kluczowych znalezionych przez metodę RANSAC na obrazach z perspektywą i bez perspektywy (średnia z 10 przebiegów)}
+		\label{tab:transforms}
+		\begin{tabular}{|l|r|r|}
+			\hline
+			& \textbf{Transformata afiniczna} & \textbf{Transformata perspektywiczna} \\ \hline
+			Bez perspektywy & 63                     & 60                           \\ \hline
+			Z perspektywą   & 17                     & 35                           \\ \hline
+		\end{tabular}
+	\end{table}
+
+	\paragraph{Wnioski}
+	Jak widać na rysunku \ref{fig:transforms11} i w tabeli \ref{tab:transforms} w przypadku pierwszego obrazu, obie transformacje poradziły sobie podobnie. Widać również jednak, że rozwiązanie z transformacją perspektywiczną znajduje średnio mniej par, co może być związane z większą przestrzenią poszukiwań i stałą liczbą iteracji.\\
+	Na rysunkach \ref{fig:transforms21} \ref{fig:transforms22} widać jednak, że w momencie kiedy obiekt na jednym z obrazów znajduje się pod innym kątem, transformacja perspektywiczna radzi sobie zdecydowanie lepiej od afinicznej. Jest to spowodowane ograniczeniami wynikającymi wprost z modelu - transformacja afiniczna nie jest w stanie reprezentować perspektywy.
+	
 	\subsubsection{Wpływ parametrów algorytmu}
 	\subsubsection{Wpływ heurystyk metody RANSAC}
 	
