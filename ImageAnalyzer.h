@@ -45,7 +45,7 @@ private:
     void runRansacImpl();
     void showAllPairs();
     void showCoherentPairs();
-    void showPairs(vector<pair<KeyPoint *, KeyPoint *>>& pairs, const string& windowName);
+    void showPairs(vector<pair<KeyPoint *, KeyPoint *>>& pairs, const string& windowName, const string& imageName);
     void showPairsMatchingTransform();
     void showTransformedImage();
     void calculatePairs();
@@ -70,6 +70,8 @@ private:
     long pairCalculationTime;
     long coherenceAnalysisTime;
     long ransacTime;
+
+    bool present = true;
 
     int ransacIterations;
     int neighbourhoodSize;
