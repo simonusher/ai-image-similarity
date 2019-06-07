@@ -300,10 +300,9 @@ void ImageAnalyzer::runRansacImpl() {
             bestConsensus = consensus;
             if (this->ransacHeuristic == Distribution) {
                 pairDistribution.insert(pairDistribution.end(), pairSample.begin(), pairSample.end());
+                std::cout << "iter: " << i << " current score: " << bestScore << "best possible: " << keyPointPairs.size() << std::endl;
             }
         }
-//        std::cout << "iter: " << i << " current score: " << bestScore << "best possible: " << keyPointPairs.size() << std::endl;
-        std::cout << i << ";" << bestScore << std::endl;
     }
     this->bestFoundTransformation = bestTransformation;
     this->matchingTransformKeyPointPairs = bestConsensus;
