@@ -428,7 +428,7 @@
 		\label{tab:thresh}
 		\begin{tabular}{|r|r|l|}
 			\hline
-			\multicolumn{1}{|l|}{\textbf{Próg akceptacji}} & \multicolumn{1}{l|}{\textbf{Średnia liczba pasujących punktów}} & \textbf{Jakość znalezionych punktów} \\ \hline
+			\multicolumn{1}{|l|}{\textbf{Próg akceptacji}} & \multicolumn{1}{l|}{\textbf{Średnia liczba par}} & \textbf{Jakość znalezionych par} \\ \hline
 			1                                              & 342,5                                                           & Bardzo dobra                         \\ \hline
 			5                                              & 576,3                                                           & Dobra                                \\ \hline
 			20                                             & 583,2                                                           & Średnia                              \\ \hline
@@ -490,6 +490,132 @@
 	\paragraph{Wnioski}
 	Wartość parametru progu akceptacji danych ma istotny wpływ na jakość transformacji znajdowanych przez metodę RANSAC. Wyższe wartości tego parametru zacierają różnice pomiędzy dobrymi a słabymi modelami.
 	\subsection{Heurystyki przyspieszające metodę RANSAC}
+	\subsubsection{Heurystyka estymacji liczby iteracji}
+	Patrząc na rysunek \ref{fig:ransac_run} można zauważyć, że po pewnej liczbie iteracji jakość modelu przestaje się poprawiać. Można więc, zamiast wybierać liczbę iteracji ręcznie, spróbować ją oszacować.
+	Badania zostały przeprowadzone na zdjęciach z rysunku \ref{fig:hp1} przy następujących parametrach:
+	\begin{itemize}
+		\item próg spójności sąsiedztwa - 0.8,
+		\item wielkość sąsiedztwa - 150.
+	\end{itemize}
 	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=\linewidth]{affineh.png}
+		\caption{Przebieg metody RANSAC dla 1000 iteracji i transformacji afinicznej.}
+		\label{fig:affineh}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=\linewidth]{persph.png}
+		\caption{Przebieg metody RANSAC dla 1000 iteracji i transformacji perspektywicznej.}
+		\label{fig:persph}
+	\end{figure}
+	\begin{table}[H]
+		\caption{Szacowane liczby iteracji w zależności od zadanego prawdopodobieństwa sukcesu dla transformacji afinicznej i perspektywicznej.}
+		\centering
+		\label{tab:heur_iters}
+		\begin{tabular}{|r|r|r|}
+			\hline
+			\multicolumn{1}{|l|}{\textbf{P}} & \multicolumn{1}{l|}{\textbf{Transformacja afiniczna}} & \multicolumn{1}{l|}{\textbf{Transformacja perspektywiczna}} \\ \hline
+			0.5                              & 32                                                    & 119                                                         \\ \hline
+			0.6                              & 43                                                    & 158                                                         \\ \hline
+			0.7                              & 57                                                    & 208                                                         \\ \hline
+			0.8                              & 72                                                    & 279                                                         \\ \hline
+			0.9                              & 108                                                   & 399                                                         \\ \hline
+			0.99                             & 217                                                   & 800                                                         \\ \hline
+		\end{tabular}
+	\end{table}
+	\paragraph{Wnioski}
+	Jak widać z rysunków \ref{fig:affineh} i \ref{fig:persph} oraz tabeli \ref{tab:heur_iters}, gdy zadana wartość prawdopodobieństwa zbliża się do 1, wtedy oszacowana liczba iteracji zaczyna odpowiadać faktycznej liczbie iteracji wymaganej do osiągnięcia dobrego modelu. Należy jednak pamiętać, że aby użyć tej heurystyki należy również oszacować prawdopodobieństwo wystąpienia szumu na obrazie. Prowadzi to do konieczności użycia innej metody i ustalenia dobrych parametrów dla niej.
 	
+	\subsubsection{Heurystyka odległości}
+	Badanie tej heurystyki zostało przeprowadzone na zdjęciach z rysunku \ref{fig:kubek}.
+	Wartości użytych parametrów to:
+	\begin{itemize}
+		\item rodzaj transformacji - perspektywiczna,
+		\item próg akceptacji - 1.
+	\end{itemize}
+
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[b]{0.35\linewidth}
+			\includegraphics[width=\linewidth]{100m1.png}
+			\caption{i=100, bez heurystyki}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.35\linewidth}
+			\includegraphics[width=\linewidth]{100m2.png}
+			\caption{i=100, z heurystyką}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.35\linewidth}
+			\includegraphics[width=\linewidth]{200m1.png}
+			\caption{i=200, bez heurystyki}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.35\linewidth}
+			\includegraphics[width=\linewidth]{200m2.png}
+			\caption{i=200, z heurystyką}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.35\linewidth}
+			\includegraphics[width=\linewidth]{300m1.png}
+			\caption{i=300, bez heurystyki}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.35\linewidth}
+			\includegraphics[width=\linewidth]{300m2.png}
+			\caption{i=300, z heurystyką}
+		\end{subfigure}
+		\caption{Porównanie pasujących par punktów znalezionych bez heurystyki i z zastosowaną heurystyką odległości.}
+			\label{fig:h2}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[b]{0.35\linewidth}
+			\includegraphics[width=\linewidth]{100t1.png}
+			\caption{i=100, bez heurystyki}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.35\linewidth}
+			\includegraphics[width=\linewidth]{100t2.png}
+			\caption{i=100, z heurystyką}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.35\linewidth}
+			\includegraphics[width=\linewidth]{200t1.png}
+			\caption{i=200, bez heurystyki}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.35\linewidth}
+			\includegraphics[width=\linewidth]{200t2.png}
+			\caption{i=200, z heurystyką}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.35\linewidth}
+			\includegraphics[width=\linewidth]{300t1.png}
+			\caption{i=300, bez heurystyki}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.35\linewidth}
+			\includegraphics[width=\linewidth]{300t2.png}
+			\caption{i=300, z heurystyką}
+		\end{subfigure}
+		\caption{Porównanie najlepszych transformacji znalezionych bez heurystyki i z zastosowaną heurystyką odległości.}
+		\label{fig:h2transform}
+	\end{figure}
+	\paragraph{Wnioski}
+	Jak widać na rysunkach \ref{fig:h2} i \ref{fig:h2transform} heurystyka odległości działa bardzo dobrze i pozwala znajdować jakościowo dobre przekształcenia w dużo mniejszej liczbie iteracji.
+	Wpływ heurystyki na \textbf{czas przetwarzania} jest rzędu 1ms i jest pomijalny.
+	
+	\subsubsection{Heurystyka modyfikacji rozkładu}
+	Badanie tej heurystyki zostało przeprowadzone przeprowadzone na zdjęciach z rysunku \ref{fig:kubek}.
+	\begin{table}[H]
+		\centering
+		\caption{Srednia (10 przebiegów) liczba par znajdowanych na obrazie bez i z zastosowaną heurystyką modyfikacji rozkładu}
+		\label{tab:h3}
+		\begin{tabular}{|r|r|r|}
+			\hline
+			\multicolumn{1}{|l|}{\textbf{Liczba iteracji}} & \multicolumn{1}{l|}{\textbf{Bez heurystyki}} & \multicolumn{1}{l|}{\textbf{Z heurystyką}} \\ \hline
+			100                                            & 6,5                                          & 6,9                                        \\ \hline
+			500                                            & 10,3                                         & 11,1                                       \\ \hline
+			1000                                           & 13,2                                         & 13,2                                       \\ \hline
+			2000                                           & 12,9                                         & 15,2                                       \\ \hline
+		\end{tabular}
+	\end{table}
+	\paragraph{Wnioski}
+	Jak widać w tabeli \ref{tab:h3} heurystyka modyfikacji rozkładu nie ma tak dużego wpływu na liczbę par znajdowanych przez metodę RANSAC jak wcześniej opisane heurystyki.
+	\section{Podsumowanie}
+	Zarówno algorytm analizy spójności sąsiedztwa jak i zastosowanie metody RANSAC do badania podobieństwa obrazów wydaje się być sensowne. Z przeprowadzonych badań wynika jednak, że najprawdopodobniej najlepszym wyjściem byłoby zastosowanie metody RANSAC wraz z heurystyką estymacji liczby iteracji oraz heurystyką odległości, ze względu na dobre wyniki i stosunkowo niewielką liczbę parametrów do strojenia.
+	\section{Profilowanie kodu}
 \end{document}
