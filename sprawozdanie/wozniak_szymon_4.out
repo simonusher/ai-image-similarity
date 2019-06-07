@@ -11,9 +11,12 @@
 \BOOKMARK [3][-]{subsubsection.1.6.2}{Heurystyka modyfikacji rozk\233adu}{subsection.1.6}% 11
 \BOOKMARK [3][-]{subsubsection.1.6.3}{Heurystyka liczby iteracji}{subsection.1.6}% 12
 \BOOKMARK [1][-]{section.2}{Badania}{}% 13
-\BOOKMARK [2][-]{subsection.2.1}{Skutecznosc algorytmu analizy sp\363jnosci sasiedztwa}{section.2}% 14
-\BOOKMARK [2][-]{subsection.2.2}{Skutecznosc dzia\233ania metody RANSAC}{section.2}% 15
-\BOOKMARK [3][-]{subsubsection.2.2.1}{Transformata afiniczna}{subsection.2.2}% 16
-\BOOKMARK [3][-]{subsubsection.2.2.2}{Transformata perspektywiczna}{subsection.2.2}% 17
-\BOOKMARK [3][-]{subsubsection.2.2.3}{Wp\233yw parametr\363w algorytmu}{subsection.2.2}% 18
-\BOOKMARK [3][-]{subsubsection.2.2.4}{Wp\233yw heurystyk metody RANSAC}{subsection.2.2}% 19
+\BOOKMARK [2][-]{subsection.2.1}{Wykorzystane pary obraz\363w}{section.2}% 14
+\BOOKMARK [2][-]{subsection.2.2}{Skutecznosc algorytmu analizy sp\363jnosci sasiedztwa}{section.2}% 15
+\BOOKMARK [3][-]{subsubsection.2.2.1}{Wp\233yw wielkosci sasiedztwa na skutecznosc algorytmu sp\363jnosci}{subsection.2.2}% 16
+\BOOKMARK [3][-]{subsubsection.2.2.2}{Wp\233yw progu sp\363jnosci na skutecznosc algorytmu}{subsection.2.2}% 17
+\BOOKMARK [2][-]{subsection.2.3}{Skutecznosc dzia\233ania metody RANSAC}{section.2}% 18
+\BOOKMARK [3][-]{subsubsection.2.3.1}{Wp\233yw rodzaju transformaty}{subsection.2.3}% 19
+\BOOKMARK [3][-]{subsubsection.2.3.2}{Wp\233yw liczby iteracji}{subsection.2.3}% 20
+\BOOKMARK [3][-]{subsubsection.2.3.3}{Wp\233yw wartosci progu sp\363jnosci}{subsection.2.3}% 21
+\BOOKMARK [2][-]{subsection.2.4}{Heurystyki przyspieszajace metode RANSAC}{section.2}% 22
