@@ -142,15 +142,15 @@ void ImageAnalyzer::runDemonstration() {
 }
 
 void ImageAnalyzer::showCoherentPairs() {
-    showPairs(coherentKeyPointPairs, "Coherent key point pairs");
+    showPairs(coherentKeyPointPairs, "Coherent key point pairs", "coherent.png");
 }
 
 void ImageAnalyzer::showAllPairs() {
-    showPairs(keyPointPairs, "All key point pairs");
+    showPairs(keyPointPairs, "All key point pairs", "all.png");
 }
 
 void ImageAnalyzer::showPairsMatchingTransform() {
-    showPairs(matchingTransformKeyPointPairs, "Matching transform key point pairs");
+    showPairs(matchingTransformKeyPointPairs, "Matching transform key point pairs", "matching.png");
 }
 
 void ImageAnalyzer::showTransformedImage() {
@@ -172,12 +172,15 @@ void ImageAnalyzer::showTransformedImage() {
         cv::warpPerspective(src, warp_dst, warp_mat, warp_dst.size());
     }
 
-    namedWindow( "Transformed", cv::WINDOW_AUTOSIZE );
-    imshow( "Transformed", warp_dst );
-    cv::waitKey(0);
+    cv::imwrite("results/transformed.png", warp_dst);
+    if(present){
+        imshow( "Transformed", warp_dst );
+        namedWindow( "Transformed", cv::WINDOW_AUTOSIZE );
+        cv::waitKey(0);
+    }
 }
 
-void ImageAnalyzer::showPairs(vector<pair<KeyPoint *, KeyPoint *>> &pairs, const string& windowName) {
+void ImageAnalyzer::showPairs(vector<pair<KeyPoint *, KeyPoint *>> &pairs, const string& windowName, const string& imageName) {
     cv::Mat im1 = cv::imread(firstImagePath, 1);
     cv::Mat im2 = cv::imread(secondImagePath, 1);
     bool hstack = im1.cols < im1.rows;
@@ -198,9 +201,12 @@ void ImageAnalyzer::showPairs(vector<pair<KeyPoint *, KeyPoint *>> &pairs, const
         cv::line(imstack, firstPoint, secondPoint,
                 cv::Scalar(colorDistribution(randomEngine), colorDistribution(randomEngine), colorDistribution(randomEngine)));
     }
-    namedWindow(windowName, cv::WINDOW_AUTOSIZE );
-    imshow(windowName, imstack);
-    cv::waitKey(0);
+    cv::imwrite("results/" + imageName, imstack);
+    if(present){
+        namedWindow(windowName, cv::WINDOW_AUTOSIZE );
+        imshow(windowName, imstack);
+        cv::waitKey(0);
+    }
 }
 
 vector<pair<KeyPoint *, KeyPoint *>> ImageAnalyzer::getNPairs(int n, vector<pair<KeyPoint*, KeyPoint*>>& distribution) {
@@ -295,8 +301,9 @@ void ImageAnalyzer::runRansacImpl() {
             if (this->ransacHeuristic == Distribution) {
                 pairDistribution.insert(pairDistribution.end(), pairSample.begin(), pairSample.end());
             }
-            std::cout << "iter: " << i << " current score: " << bestScore << "best possible: " << keyPointPairs.size() << std::endl;
         }
+//        std::cout << "iter: " << i << " current score: " << bestScore << "best possible: " << keyPointPairs.size() << std::endl;
+        std::cout << i << ";" << bestScore << std::endl;
     }
     this->bestFoundTransformation = bestTransformation;
     this->matchingTransformKeyPointPairs = bestConsensus;
