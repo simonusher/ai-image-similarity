@@ -386,8 +386,110 @@
 	Jak widać na rysunku \ref{fig:transforms11} i w tabeli \ref{tab:transforms} w przypadku pierwszego obrazu, obie transformacje poradziły sobie podobnie. Widać również jednak, że rozwiązanie z transformacją perspektywiczną znajduje średnio mniej par, co może być związane z większą przestrzenią poszukiwań i stałą liczbą iteracji.\\
 	Na rysunkach \ref{fig:transforms21} \ref{fig:transforms22} widać jednak, że w momencie kiedy obiekt na jednym z obrazów znajduje się pod innym kątem, transformacja perspektywiczna radzi sobie zdecydowanie lepiej od afinicznej. Jest to spowodowane ograniczeniami wynikającymi wprost z modelu - transformacja afiniczna nie jest w stanie reprezentować perspektywy.
 	
-	\subsubsection{Wpływ parametrów algorytmu}
-	\subsubsection{Wpływ heurystyk metody RANSAC}
+	\subsubsection{Wpływ liczby iteracji}
+	Badanie wpływu iteracji zostało przeprowadzone na parze obrazów z rysunku \ref{fig:hp1}. Ustalone wartości parametrów to:
+	\begin{itemize}
+		\item próg akceptacji - 1,
+		\item typ transformacji - perspektywiczna.
+	\end{itemize}
+	\begin{table}[H]
+		\centering
+		\caption{Średnia liczba par pasujących do transformacji i średni czas działania dla różnych wartości liczby iteracji}
+		\label{tab:iterations}
+		\begin{tabular}{|r|r|r|}
+			\hline
+			\multicolumn{1}{|l|}{\textbf{Liczba iteracji}} & \multicolumn{1}{l|}{\textbf{Średnia liczba pasujących par}} & \multicolumn{1}{l|}{\textbf{Średni czas{[}ms{]}}} \\ \hline
+			50                                             & 257,5                                                         & \textless{}1                                      \\ \hline
+			100                                            & 301,2                                                         & 1                                                 \\ \hline
+			200                                            & 307,1                                                         & 2                                                 \\ \hline
+			500                                            & \textbf{332,7}                                                         & 5,1                                               \\ \hline
+			1000                                           & 325,75                                                        & 10,7                                              \\ \hline
+		\end{tabular}
+	\end{table}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=\linewidth]{wykres1.png}
+		\caption{Przykładowy przebieg metody RANSAC.}
+		\label{fig:ransac_run}
+	\end{figure}
+	\paragraph{Wnioski}
+	Liczba iteracji jest istotnym parametrem metody RANSAC, ponieważ bezpośrednio wpływa na jakość znajdowanych modeli jak i czas działania. Jak widać w tabeli \ref{tab:iterations} jak i na wykresie \ref{fig:ransac_run} istnieje pewna graniczna wartość liczby iteracji, od której zmiany wielkości są bardzo małe lub nie występują wcale. Liczbę iteracji można przez to bardzo łatwo przeszacować, powodując tym samym, że metoda będzie działać długo.
+
+	\subsubsection{Wpływ wartości progu spójności}
+	Badanie zostało przeprowadzone na tym samym obrazie co w poprzedniej sekcji. Ustalone wartości parametrów to:
+	\begin{itemize}
+		\item liczba iteracji - 500,
+		\item typ transformacji - perspektywiczna.
+	\end{itemize}
+
+	\begin{table}[H]
+		\centering
+		\caption{Liczba i jakość punktów pasujących do transformacji znalezionej przez metodę RANSAC dla różnych wartości progu akceptacji}
+		\label{tab:thresh}
+		\begin{tabular}{|r|r|l|}
+			\hline
+			\multicolumn{1}{|l|}{\textbf{Próg akceptacji}} & \multicolumn{1}{l|}{\textbf{Średnia liczba pasujących punktów}} & \textbf{Jakość znalezionych punktów} \\ \hline
+			1                                              & 342,5                                                           & Bardzo dobra                         \\ \hline
+			5                                              & 576,3                                                           & Dobra                                \\ \hline
+			20                                             & 583,2                                                           & Średnia                              \\ \hline
+			50                                             & 592,7                                                           & Niska                                \\ \hline
+			100                                            & 592,7                                                           & Niska                                \\ \hline
+		\end{tabular}
+	\end{table}
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{p1m.png}
+			\caption{t=1}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{p5m.png}
+			\caption{t=5}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{p20m.png}
+			\caption{t=20}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{p50m.png}
+			\caption{t=50}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{p100m.png}
+			\caption{t=100}
+		\end{subfigure}
+		\caption{Pary punktów kluczowych pasujące do transformacji znalezionej przy różnych wartościach progu akceptacji.}
+		\label{fig:thresh}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[b]{0.3\linewidth}
+			\includegraphics[width=\linewidth]{p1t.png}
+			\caption{t=1}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.3\linewidth}
+			\includegraphics[width=\linewidth]{p5t.png}
+			\caption{t=5}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.3\linewidth}
+			\includegraphics[width=\linewidth]{p20t.png}
+			\caption{t=20}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.3\linewidth}
+			\includegraphics[width=\linewidth]{p50t.png}
+			\caption{t=50}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.3\linewidth}
+			\includegraphics[width=\linewidth]{p100t.png}
+			\caption{t=100}
+		\end{subfigure}
+		\caption{Pierwszy obraz z pary po zaaplikowaniu najlepszej znalezionej transformacji przy różnych wartościach progu akceptacji.}
+		\label{fig:thresh2}
+	\end{figure}
+	
+	\paragraph{Wnioski}
+	Wartość parametru progu akceptacji danych ma istotny wpływ na jakość transformacji znajdowanych przez metodę RANSAC. Wyższe wartości tego parametru zacierają różnice pomiędzy dobrymi a słabymi modelami.
+	\subsection{Heurystyki przyspieszające metodę RANSAC}
 	
 	
 \end{document}

@@ -17,5 +17,6 @@
 \BOOKMARK [3][-]{subsubsection.2.2.2}{Wp\233yw progu sp\363jnosci na skutecznosc algorytmu}{subsection.2.2}% 17
 \BOOKMARK [2][-]{subsection.2.3}{Skutecznosc dzia\233ania metody RANSAC}{section.2}% 18
 \BOOKMARK [3][-]{subsubsection.2.3.1}{Wp\233yw rodzaju transformaty}{subsection.2.3}% 19
-\BOOKMARK [3][-]{subsubsection.2.3.2}{Wp\233yw parametr\363w algorytmu}{subsection.2.3}% 20
-\BOOKMARK [3][-]{subsubsection.2.3.3}{Wp\233yw heurystyk metody RANSAC}{subsection.2.3}% 21
+\BOOKMARK [3][-]{subsubsection.2.3.2}{Wp\233yw liczby iteracji}{subsection.2.3}% 20
+\BOOKMARK [3][-]{subsubsection.2.3.3}{Wp\233yw wartosci progu sp\363jnosci}{subsection.2.3}% 21
+\BOOKMARK [2][-]{subsection.2.4}{Heurystyki przyspieszajace metode RANSAC}{section.2}% 22
