@@ -615,6 +615,92 @@
 	\end{table}
 	\paragraph{Wnioski}
 	Jak widać w tabeli \ref{tab:h3} heurystyka modyfikacji rozkładu nie ma tak dużego wpływu na liczbę par znajdowanych przez metodę RANSAC jak wcześniej opisane heurystyki.
+	\section{Przykładowe wyniki}
+	W tej sekcji zostaną zaprezentowane przykładowe wyniki otrzymane przez zastosowanie opisanych powyżej metod do wybranych par obrazów. We wszystkich przypadkach metoda RANSAC została zastosowana bez użycia heurystyk, z transformacją perspektywiczną i progiem akceptacji = 1. Parametry analizy spójności były ustalane indywidualnie dla poszczególnych obrazów.
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{k1a.png}
+			\caption{Wszystkie pary}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{k1c.png}
+			\caption{Po analizie spójności}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{k1m.png}
+			\caption{Po zastosowaniu metody RANSAC}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.6\linewidth}
+			\includegraphics[width=\linewidth]{k1t.png}
+			\caption{Znaleziona transformacja}
+		\end{subfigure}
+		\caption{Wyniki zastosowania metod do zdjęć książki "Harry Potter i Przeklęte Dziecko".}
+		\label{fig:w1}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{k2a.png}
+			\caption{Wszystkie pary}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{k2c.png}
+			\caption{Po analizie spójności}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{k2m.png}
+			\caption{Po zastosowaniu metody RANSAC}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.6\linewidth}
+			\includegraphics[width=\linewidth]{k2t.png}
+			\caption{Znaleziona transformacja}
+		\end{subfigure}
+		\caption{Wyniki zastosowania metod do zdjęć książki "Brudne gry".}
+		\label{fig:w2}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{kua.png}
+			\caption{Wszystkie pary}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{kuc.png}
+			\caption{Po analizie spójności}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{kum.png}
+			\caption{Po zastosowaniu metody RANSAC}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.6\linewidth}
+			\includegraphics[width=\linewidth]{kut.png}
+			\caption{Znaleziona transformacja}
+		\end{subfigure}
+		\caption{Wyniki zastosowania metod do zdjęć kubka}
+		\label{fig:w3}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{falsea.png}
+			\caption{Wszystkie pary}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{falsec.png}
+			\caption{Po analizie spójności}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.4\linewidth}
+			\includegraphics[width=\linewidth]{falsem.png}
+			\caption{Po zastosowaniu metody RANSAC}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.6\linewidth}
+			\includegraphics[width=\linewidth]{falset.png}
+			\caption{Znaleziona transformacja}
+		\end{subfigure}
+		\caption{Wyniki zastosowania metod do zdjęć bez podobnych obiektów.}
+		\label{fig:w3}
+	\end{figure}
 	\section{Podsumowanie}
 	Zarówno algorytm analizy spójności sąsiedztwa jak i zastosowanie metody RANSAC do badania podobieństwa obrazów wydaje się być sensowne. Z przeprowadzonych badań wynika jednak, że najprawdopodobniej najlepszym wyjściem byłoby zastosowanie metody RANSAC wraz z heurystyką estymacji liczby iteracji oraz heurystyką odległości, ze względu na dobre wyniki i stosunkowo niewielką liczbę parametrów do strojenia.
 	\section{Profilowanie kodu}
